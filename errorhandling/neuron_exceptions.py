@@ -1,0 +1,2 @@
+class NotEnoughCharge(Exception):
+    pass
