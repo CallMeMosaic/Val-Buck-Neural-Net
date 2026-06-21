@@ -1,12 +1,11 @@
-from typing import List, Dict, Optional, Tuple
-import numpy as np
+from typing import List
 
 from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.transmitters import Transmitters
 
 
 class Dendrite:
-    def init(
+    def __init__(
             self,
             length: float = 1.0, # default value is 1.0
     ):

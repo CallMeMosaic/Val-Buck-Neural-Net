@@ -49,53 +49,43 @@ class Soma:
         refractory_timer = 1
         self.refractory_timer = refractory_timer
 
-        # Needed to 
+        # Needed to
 
+    def process(self, incoming: Signal) -> Signal | None:
+        # TODO: - Implement this
+        # TODO: Should use the data contained in the NeuroTransmitter and process it
+        # TODO: RUN CHECK UP ON MITOCHONDRION
 
+        if self.mitochondrion.current_charge < self.threshold:
+            is_exhausted = True
+            return None
 
+        if self.refractory_timer > 0:
+            self.refractory_timer -= 1
+            # Still do the maths, but with don't fire
+            return None
 
-        def process(incoming: Signal) -> Signal | None:
-            #TODO: - Implement this
-            #TODO: Should use the data contained in the NeuroTransmitter and process it
-            #TODO: RUN CHECK UP ON MITOCHONDRION
-
-            if mitochondrion.current_charge < self.threshold:
-                is_exhausted = True
-                return None
-
-            if self.refractory_timer > 0:
-                self.refractory_timer -= 1
-                # Still do the maths, but with don't fire
-                return None
-
+        else:
+            if self.mitochondrion.consume(TransmittersCost.STANDARD):
+                # DO Maths here
+                outgoing = Signal(2)  # PLACEHOLDER
+                return outgoing
             else:
-                if mitochondrion.consume(TransmittersCost.STANDARD):
-                    # DO Maths here
-                    outgoing = Signal(2) #PLACEHOLDER
-                    return outgoing
-                else:
-                    # Save the signal for later?
-                    return None
+                # Save the signal for later?
+                return None
 
+    def assign_transmitter(self, signal: Signal) -> Tuple[Transmitters, TransmittersCost]:
+        # TODO: - Implement this
+        # TODO: Should use the Signal returned from the process method to assign a transmitter and return said transmitter
+        # TODO: RETURN TYPE IS CROOKED
+        # TODO: RUN CHECK UP ON MITOCHONDRION
 
-        def assign_transmitter(signal: Signal) -> Tuple[Transmitters, TransmittersCost]:
-            #TODO: - Implement this
-            #TODO: Should use the Signal returned from the process method to assign a transmitter and return said transmitter
-            #TODO: RETURN TYPE IS CROOKED
-            #TODO: RUN CHECK UP ON MITOCHONDRION
+        self.mitochondrion.consume(TransmittersCost.STANDARD)
+        transmitter_tuple: Tuple
+        return transmitter_tuple[Transmitters, TransmittersCost]
 
-            mitochondrion.consume(TransmittersCost.STANDARD)
-            transmitter_tuple: Tuple
-            return transmitter_tuple[Transmitters, TransmittersCost]
-
-        def fire():
-            mitochondrion.consume(TransmittersCost.FIRE)
-            #TODO: -implement this
-            #TODO: Should command the firing of the transmitter
-            pass
-
-
-
-
-
-
+    def fire(self):
+        self.mitochondrion.consume(TransmittersCost.FIRE)
+        # TODO: -implement this
+        # TODO: Should command the firing of the transmitter
+        pass

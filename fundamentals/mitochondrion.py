@@ -63,7 +63,7 @@ class Mitochondrion:
         """
 
         # Ensure that the amount to consume is not 0
-        if self.amount <= 0:
+        if amount <= 0:
             # Prevents division by zero
             raise ValueError("Amount must be greater than 0")
 
@@ -89,7 +89,7 @@ class Mitochondrion:
         """
         self.current_charge = min(self.current_charge + amount, self.capacity)
 
-    def what_are_you():
+    def what_are_you(self):
         print("I am a mitochondrion, the powerhouse of the cell!")
 
 

@@ -29,4 +29,4 @@ class Axon:
         if self.mitochondrion.consume(cost):
             return NeuroTransmitter(transmitter,cost, signal)
         else:
-            pass
+            return None
