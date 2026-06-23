@@ -1,4 +1,7 @@
+from typing import List
+
 from fundamentals.Signal import Signal
+from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.neuro_transmitter import NeuroTransmitter
 from fundamentals.nucleus import Nucleus
@@ -20,6 +23,9 @@ class Axon:
         if mitochondrion is None:
             raise ValueError("Mitochondrion cannot be None")
         self.mitochondrion = mitochondrion
+
+        # List of axon terminals
+        self.axon_terminals: List[AxonTerminal] = []
 
 
     def synthesize(self,transmitter: Transmitters, cost: TransmittersCost, signal: Signal) -> NeuroTransmitter | None:
