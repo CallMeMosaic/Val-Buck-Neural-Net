@@ -36,3 +36,7 @@ class Axon:
             return NeuroTransmitter(transmitter,cost, signal)
         else:
             return None
+
+
+    def add_terminal(self, terminal: AxonTerminal):
+        self.axon_terminals.append(terminal)
