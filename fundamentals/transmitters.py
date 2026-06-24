@@ -12,7 +12,7 @@ class Transmitters(Enum):
     :vartype GLUTAMATE: str
 
     :cvar GABA: Represents gamma-aminobutyric acid (GABA), a major inhibitory
-                neurotransmitter.
+                neurotransmitter. Inhibits neuron activity by lowering the membrane potential.
     :vartype GABA: str
 
     :cvar DOPAMINE: Represents dopamine, a neurotransmitter associated with

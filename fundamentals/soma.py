@@ -10,6 +10,35 @@ from fundamentals.transmitters_cost import TransmittersCost
 
 
 class Soma:
+    """
+    Represents the Soma, the cell body of a neuron, responsible for integration and processing of
+    incoming signals. It interfaces with dendrites, an axon, a mitochondrion for energy supply,
+    and a nucleus for genetic material. Soma processes signals and generates outgoing signals
+    when needed, considering its threshold and refractory state.
+
+    :ivar axon: The axon is connected to the Soma, responsible for transmitting outgoing signals.
+    :type axon: Axon
+    :ivar dendrites: A list of dendrites connected to the Soma, responsible for receiving incoming signals.
+    :type dendrites: list[Dendrite]
+    :ivar name: Optional name of the Soma to distinguish it, if required.
+    :type name: Optional[str]
+    :ivar mitochondrion: The mitochondrion supplying energy for the Soma's operations.
+    :type mitochondrion: Mitochondrion
+    :ivar nucleus: The nucleus containing genetic material and regulating Soma functions.
+    :type nucleus: Nucleus
+    :ivar threshold: The minimum energy threshold needed to process an incoming signal.
+    :type threshold: Float
+    :ivar refractory_period: Period during which the Soma cannot fire another signal after processing one.
+    :type refractory_period: Float
+    :ivar is_exhausted: A boolean flag indicating whether the Soma is in an exhausted state, unable to process signals.
+    :type is_exhausted: Bool
+    :ivar refractory_timer: Tracks the remaining time in the Soma's refractory period.
+    :type refractory_timer: Int
+
+    :author: CallMeMosaic
+    :since: 0.0.1
+    :version: 0.0.1
+    """
     def __init__(
             self,
             axon: Axon,

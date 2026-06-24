@@ -1,5 +1,5 @@
-from typing import List, Dict, Optional, Tuple
-import numpy as np
+from typing import Optional
+
 from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.transmitters import Transmitters
 
@@ -28,9 +28,10 @@ class DendriteBranch:
     """
     def __init__(
             self,
-            length: float, # default value is 1.0, needed for calculations later
-            receptor_type: Transmitters, # From transmitters enum
-            parent_axon_terminal: AxonTerminal, # Makes sure that the axon terminal's type matches the receptor type
+            length: float = 1.0,  # default value is 1.0, needed for calculations later
+            receptor_type: Transmitters = None,  # From transmitters enum
+            parent_axon_terminal: AxonTerminal = None,
+            # Makes sure that the axon terminal's type matches the receptor type
             name: Optional[str] = None # Optional name for easier debugging
     ):
         if length <= 0:
