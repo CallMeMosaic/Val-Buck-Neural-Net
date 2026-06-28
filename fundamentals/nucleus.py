@@ -34,8 +34,7 @@ class Nucleus:
             raise ValueError("DNA CANNOT BE NONE! NEURON CREATION FAILED")
         self.dna = dna
 
-    def activation_function(self, lambda_function: Callable,):
-        pass
+
 
 
 

@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Callable
 
 from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.dendrite_branch import DendriteBranch
+from fundamentals.maths.activation_functions import ReLu
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.transmitters import Transmitters
 
@@ -31,12 +32,14 @@ class Dendrite:
 
     :author: CallMeMosaic
     :since: 0.0.1
-    :version: 0.0.1
+    :version: 0.0.2
     """
     def __init__(
             self,
             mitochondrion: Mitochondrion,
             length: float = 1.0, # default value is 1.0
+            local_threshold: float = -44, #mV Minimum local charge necessary for a local spike -> Soma
+            activation_function: Callable = ReLu
 
     ):
         if length <= 0 or length is None or length is not float:
@@ -50,6 +53,12 @@ class Dendrite:
         # Dynamic Properties necessary to keep track of dendrite branches and transmitters
         self.accepted_transmitters: List[Transmitters] = []
         self.branches: List[DendriteBranch] = []
+
+        # Add charge to neuron
+        charge: float = -70 # mV
+        self.charge = charge
+
+        self.activation_function = activation_function
 
     def create_and_add_branch(self, length: float, receptor_type: Transmitters, target_axon_terminal: AxonTerminal):
         """
@@ -67,6 +76,7 @@ class Dendrite:
         :type target_axon_terminal: AxonTerminal
         :return: None
         """
+
         self.branches.append(DendriteBranch(length, receptor_type, target_axon_terminal))
 
     def remove_and_delete_branch(self, branch: DendriteBranch):
@@ -78,3 +88,13 @@ class Dendrite:
         :return: None
         """
         self.branches.remove(branch)
+
+
+    #def activation_function(self, x, lambda_function: Callable,):
+     #   pass
+
+    def process_branches(self):
+        for branch in self.branches:
+            proc_value = self.activation_function(branch.current_Signal.value)
+            branch.current_Signal.value += proc_value
+

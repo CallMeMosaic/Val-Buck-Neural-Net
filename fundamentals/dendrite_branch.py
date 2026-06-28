@@ -1,5 +1,6 @@
 from typing import Optional
 
+from fundamentals.Signal import Signal
 from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.transmitters import Transmitters
 
@@ -32,7 +33,8 @@ class DendriteBranch:
             receptor_type: Transmitters = None,  # From transmitters enum
             parent_axon_terminal: AxonTerminal = None,
             # Makes sure that the axon terminal's type matches the receptor type
-            name: Optional[str] = None # Optional name for easier debugging
+            name: Optional[str] = None, # Optional name for easier debugging
+            current_Signal: Signal = None
     ):
         if length <= 0:
             raise ValueError("Length must be greater than 0")
@@ -47,6 +49,7 @@ class DendriteBranch:
         self.parent_axon_terminal = parent_axon_terminal
         self.length = length
         self.receptor_type = receptor_type
+        self.current_Signal = current_Signal
 
     # def receive_signal(
     #         self,
