@@ -5,6 +5,10 @@ from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.transmitters import Transmitters
 
+#TODO: - Dendritic pre-processing
+#TODO: - Needs to be non linear (Activation Function)
+
+
 
 class Dendrite:
     """

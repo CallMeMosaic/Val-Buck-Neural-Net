@@ -8,6 +8,7 @@ from fundamentals.nucleus import Nucleus
 from fundamentals.transmitters import Transmitters
 from fundamentals.transmitters_cost import TransmittersCost
 
+#TODO: Needs threshold
 
 class Soma:
     """
