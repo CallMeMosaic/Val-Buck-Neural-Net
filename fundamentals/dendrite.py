@@ -1,3 +1,4 @@
+from tkinter import BooleanVar
 from typing import List, Callable
 
 from fundamentals.axon_terminal import AxonTerminal
@@ -38,8 +39,9 @@ class Dendrite:
             self,
             mitochondrion: Mitochondrion,
             length: float = 1.0, # default value is 1.0
-            local_threshold: float = -44, #mV Minimum local charge necessary for a local spike -> Soma
-            activation_function: Callable = ReLu
+            local_threshold: float = -44, # mV Minimum local charge necessary for a local spike -> Soma
+            baseline_charge: float = -70, # Determines the base charge, so current charge can also be reset to this
+            activation_function: Callable = ReLu # Activation Function passed so each dendrite can have it's own
 
     ):
         if length <= 0 or length is None or length is not float:
@@ -57,6 +59,12 @@ class Dendrite:
         # Add charge to neuron
         charge: float = -70 # mV
         self.charge = charge
+
+        #Add Baseline Charge: TODO: - Add a way to ensure that this baseline charge is within reasonable parameters!!!
+        self.baseline_charge: float = baseline_charge
+
+        # Make sure local threshold is usable TODO: - Add way to ensure this threshold is within reasonable parameters!!!
+        self.local_threshold = local_threshold
 
         self.activation_function = activation_function
 
@@ -93,8 +101,32 @@ class Dendrite:
     #def activation_function(self, x, lambda_function: Callable,):
      #   pass
 
-    def process_branches(self):
+    def process_branches(self) -> BooleanVar:
+        """
+        Applies the passed activation function to the values received by each dendrite branch.
+        This prepares the values for evaluation.
+        Also summarizes all the values held inside the dendrite branches' current signals, to the current charge.
+        If a branch's signal has been added to the charge of the dendrite, it's reference is destroyed, so it can be collected by GC.
+        This also ensures that no Signal can be processed twice.
+
+
+        :return:
+        """
         for branch in self.branches:
-            proc_value = self.activation_function(branch.current_Signal.value)
-            branch.current_Signal.value += proc_value
+
+            # Step 1: Add signal to charge in a loop
+            branch.current_Signal.value = self.activation_function(branch.current_Signal.value)
+
+            # Step 2: Remove the reference to the signal object, so GC collects it
+            branch.current_Signal = None
+
+            # Step 3: Add the processed signal value to the dendrite branch's charge level
+            self.charge += branch.current_Signal.value
+
+        # Step 5: Outside of Loop, check if the charge is high enough after the processing
+        if self.charge >= self.local_threshold:
+            self.charge = self.baseline_charge
+            return True
+
+        return False
 

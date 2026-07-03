@@ -1,2 +1,3 @@
 
 class Neuron:
+    pass
