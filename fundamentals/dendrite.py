@@ -1,10 +1,10 @@
-from tkinter import BooleanVar
 from typing import List, Callable
 
 from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.maths.activation_functions import ReLu
 from fundamentals.mitochondrion import Mitochondrion
+from fundamentals.soma import Soma
 from fundamentals.transmitters import Transmitters
 
 #TODO: - Dendritic pre-processing
@@ -38,19 +38,27 @@ class Dendrite:
     def __init__(
             self,
             mitochondrion: Mitochondrion,
+            related_soma: Soma,  # Needed for handing off the processed value to the soma
             length: float = 1.0, # default value is 1.0
             local_threshold: float = -44, # mV Minimum local charge necessary for a local spike -> Soma
             baseline_charge: float = -70, # Determines the base charge, so current charge can also be reset to this
             activation_function: Callable = ReLu # Activation Function passed so each dendrite can have it's own
 
     ):
+        # Ensure the length makes sense
         if length <= 0 or length is None or length is not float:
             raise ValueError("Length must be greater than 0 and of type float")
         self.length = length
 
+        # Ensure the Mitochondrion is not none or not of type mitochondrion
         if mitochondrion is None or mitochondrion is not Mitochondrion:
             raise ValueError("Mitochondrion must be object of type Mitochondrion!")
         self.mitochondrion = mitochondrion
+
+        # Ensure the Soma is not none or not of type soma
+        if related_soma is None or related_soma is not Soma:
+            raise ValueError("Soma must be object of type Soma!")
+        self.related_soma = related_soma
 
         # Dynamic Properties necessary to keep track of dendrite branches and transmitters
         self.accepted_transmitters: List[Transmitters] = []
@@ -98,14 +106,23 @@ class Dendrite:
         self.branches.remove(branch)
 
 
-    #def activation_function(self, x, lambda_function: Callable,):
-     #   pass
+    def fire(self):
 
-    def process_branches(self) -> BooleanVar:
+        # Needs to take it's current charge minus the default to determine the excess
+
+        """
+
+        :return:
+        """
+
+        if self.charge >= self.local_threshold:
+            self.related_soma.process()
+
+    def process_branches(self) -> bool:
         """
         Applies the passed activation function to the values received by each dendrite branch.
         This prepares the values for evaluation.
-        Also summarizes all the values held inside the dendrite branches' current signals, to the current charge.
+        Also summarises all the values held inside the dendrite branches' current signals, to the current charge.
         If a branch's signal has been added to the charge of the dendrite, it's reference is destroyed, so it can be collected by GC.
         This also ensures that no Signal can be processed twice.
 
@@ -117,11 +134,15 @@ class Dendrite:
             # Step 1: Add signal to charge in a loop
             branch.current_Signal.value = self.activation_function(branch.current_Signal.value)
 
-            # Step 2: Remove the reference to the signal object, so GC collects it
+            # Step 2: Add the processed signal value to the dendrite branch's charge level
+            self.charge += branch.current_Signal.value
+
+            # Step 3: Remove the reference to the signal object, so GC collects it
             branch.current_Signal = None
 
-            # Step 3: Add the processed signal value to the dendrite branch's charge level
-            self.charge += branch.current_Signal.value
+            # Step 4: Reduce the local Mitochondrions energy, be the amount of the Signal's NT
+            self.mitochondrion.consume(branch.current_Signal.)
+
 
         # Step 5: Outside of Loop, check if the charge is high enough after the processing
         if self.charge >= self.local_threshold:
