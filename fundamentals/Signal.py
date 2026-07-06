@@ -9,4 +9,7 @@ class Signal:
             value: float
 
     ):
-        self.value = value
+        if value is not None:
+            self.value = value
+        else:
+            raise ValueError("Value cannot be None")

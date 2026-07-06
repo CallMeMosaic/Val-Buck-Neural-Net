@@ -1,11 +1,14 @@
 from typing import List, Callable
 
+#from fundamentals import mitochondrion # Double import and shadow?? Wtf?
 from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.maths.activation_functions import ReLu
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.soma import Soma
 from fundamentals.transmitters import Transmitters
+from fundamentals.transmitters_cost import TransmittersCost
+
 
 #TODO: - Dendritic pre-processing
 #TODO: - Needs to be non linear (Activation Function)
@@ -108,17 +111,24 @@ class Dendrite:
 
     def fire(self):
 
-        # Needs to take it's current charge minus the default to determine the excess
-
         """
 
         :return:
         """
 
-        if self.charge >= self.local_threshold:
-            self.related_soma.process()
+        # Step 1: Check if firing is possible, by checking in on the mitochondrion
+        if self.mitochondrion.consume(TransmittersCost.FIRE):
+            if self.charge >= self.local_threshold:
+                # For now use difference between threshold and actual charge as signal value to hand off
+                self.related_soma.process(abs(self.local_threshold - self.charge))
+        else:
+            print("CANNOT FIRE: MITOCHONDRION IS EXHAUSTED")
 
-    def process_branches(self) -> bool:
+
+
+
+
+    def process_branches(self):
         """
         Applies the passed activation function to the values received by each dendrite branch.
         This prepares the values for evaluation.
@@ -131,23 +141,24 @@ class Dendrite:
         """
         for branch in self.branches:
 
-            # Step 1: Add signal to charge in a loop
+            # Step 1: Add signal value to charge in a loop
             branch.current_Signal.value = self.activation_function(branch.current_Signal.value)
 
             # Step 2: Add the processed signal value to the dendrite branch's charge level
             self.charge += branch.current_Signal.value
 
-            # Step 3: Remove the reference to the signal object, so GC collects it
+            # Step 3: Reduce the local Mitochondrions energy, be the amount of the Signal's NT
+            self.mitochondrion.consume(TransmittersCost(branch.current_NT.name))
+
+            # Step 4: Remove the reference to the signal object, so GC collects it
             branch.current_Signal = None
 
-            # Step 4: Reduce the local Mitochondrions energy, be the amount of the Signal's NT
-            self.mitochondrion.consume(branch.current_Signal.)
+            #TODO: Add cable theory
 
-
-        # Step 5: Outside of Loop, check if the charge is high enough after the processing
-        if self.charge >= self.local_threshold:
-            self.charge = self.baseline_charge
-            return True
-
-        return False
+        # # Step 5: Outside of Loop, check if the charge is high enough after the processing
+        # if self.charge >= self.local_threshold:
+        #     self.charge = self.baseline_charge
+        #     return True
+        #
+        # return False
 

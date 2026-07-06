@@ -35,17 +35,17 @@ class DendriteBranch:
             parent_axon_terminal: AxonTerminal = None,
             # Makes sure that the axon terminal's type matches the receptor type
             name: Optional[str] = None, # Optional name for easier debugging
-            current_Signal: Signal = None,
-            current_NT: NeuroTransmitter = None, # The Neuro Transmitter object handed to the branch
-            last_NT: NeuroTransmitter = None, # For applying effects and tracking in Dendrite
+            current_signal: Signal = None,
+            current_NT: Transmitters = None, # The Neuro Transmitter type that was handed to the Branch
+            last_NT: Transmitters = None, # For applying effects and tracking in Dendrite
     ):
         if length <= 0:
             raise ValueError("Length must be greater than 0")
         if receptor_type not in Transmitters:
             raise ValueError("Invalid receptor type")
-        if receptor_type != parent_axon_terminal.type:
-            raise ValueError(f"Transmitter mismatch: Dendrite expexts: {receptor_type}, "
-                             f" but connecting axon sends: {parent_axon_terminal.type}")
+        if receptor_type != parent_axon_terminal.effector_type:
+            raise ValueError(f"Transmitter mismatch: Dendrite expects: {receptor_type}, "
+                             f" but connecting axon sends: {parent_axon_terminal.effector_type}")
         if parent_axon_terminal is None:
             raise ValueError("Parent axon terminal cannot be None")
 
@@ -62,19 +62,21 @@ class DendriteBranch:
         self.parent_axon_terminal = parent_axon_terminal
         self.length = length
         self.receptor_type = receptor_type
-        self.current_Signal = current_Signal
+        self.current_Signal = current_signal
 
 
-### THIS IS WRONG!!!!
-    def receive_signal(self,NeuroTransmitter: NeuroTransmitter,):
+
+    def receive_signal(self, acceptor: NeuroTransmitter, ):
+        # Basically accepts a Neuro Transmitter object and reduces it to the signal object
         """
 
-        :param NeuroTransmitter:
+        :param acceptor:
         :return:
         """
-        self.current_Signal = NeuroTransmitter.signal
+        self.current_Signal = acceptor.signal
         self.last_NT = self.current_NT
-        self.current_NT = NeuroTransmitter.type
 
 
         #TODO:  Apply Bias and Weight here
+        #TODO: Make sure NT object is handled correctly here
+        #TODO: Add cable theory

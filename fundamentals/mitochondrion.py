@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from fundamentals.transmitters_cost import TransmittersCost
 
 
-@dataclass
+#@dataclass
 class Mitochondrion:
     """
     Represents a Mitochondrion object with properties for energy capacity, recharge rate,

@@ -81,10 +81,11 @@ class Soma:
 
         # Needed to
 
-    def process(self, incoming: Signal) -> Signal | None:
+    def process(self, incoming: float) -> Signal | None:
         # TODO: - Implement this
         # TODO: Should use the data contained in the NeuroTransmitter and process it
         # TODO: RUN CHECK UP ON MITOCHONDRION
+        # TODO: ADD CABLE THEORY
 
         if self.mitochondrion.current_charge < self.threshold:
             is_exhausted = True
