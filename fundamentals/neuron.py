@@ -1,3 +1,7 @@
 
 class Neuron:
-    pass
+
+
+
+    def process(self):
+        pass

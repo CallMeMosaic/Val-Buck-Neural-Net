@@ -35,6 +35,8 @@ class Soma:
     :type is_exhausted: Bool
     :ivar refractory_timer: Tracks the remaining time in the Soma's refractory period.
     :type refractory_timer: Int
+    :ivar fired_stat: Tracks whether the Soma has fired a signal in the current time step. Gets reset after one timestep and is needed for the layer-control/region to track firing sequences.
+    :type fired_stat: Bool
 
     :author: CallMeMosaic
     :since: 0.0.1
@@ -49,6 +51,7 @@ class Soma:
             threshold: float = 0.5,
             refractory_period: float = 0.5,
             name: Optional[str] = None,
+            fired_stat: Bool = False
     ):
         # Axon and Dendrites need to nullable so a Soma can also be created without them (initial creation)
         self.axon = axon
@@ -86,9 +89,10 @@ class Soma:
         # TODO: Should use the data contained in the NeuroTransmitter and process it
         # TODO: RUN CHECK UP ON MITOCHONDRION
         # TODO: ADD CABLE THEORY
+        # TODO: NEEDS TO CHECK MEMBRANE CHARGE AND THRESHOLD TO FIRE
 
-        if self.mitochondrion.current_charge < self.threshold:
-            is_exhausted = True
+        if not self.mitochondrion.consume():
+            self.is_exhausted = True
             return None
 
         if self.refractory_timer > 0:
