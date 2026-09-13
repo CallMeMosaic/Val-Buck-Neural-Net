@@ -3,5 +3,5 @@ class Neuron:
 
 
 
-    def process(self):
+    def process(self,input_value = None):
         pass

@@ -132,8 +132,8 @@ class Dendrite:
         """
         Applies the passed activation function to the values received by each dendrite branch.
         This prepares the values for evaluation.
-        Also summarises all the values held inside the dendrite branches' current signals, to the current charge.
-        If a branch's signal has been added to the charge of the dendrite, it's reference is destroyed, so it can be collected by GC.
+        Also summarizes all the values held inside the dendrite branches' current signals, to the current charge.
+        If a branch's signal has been added to the charge of the dendrite, its reference is destroyed, so it can be collected by GC.
         This also ensures that no Signal can be processed twice.
 
 
@@ -147,7 +147,7 @@ class Dendrite:
             # Step 2: Add the processed signal value to the dendrite branch's charge level
             self.charge += branch.current_Signal.value
 
-            # Step 3: Reduce the local Mitochondrions energy, be the amount of the Signal's NT
+            # Step 3: Reduce the local Mitochondrion energy, be the amount of the Signal's NT
             self.mitochondrion.consume(TransmittersCost(branch.current_NT.name))
 
             # Step 4: Remove the reference to the signal object, so GC collects it
