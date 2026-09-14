@@ -67,7 +67,7 @@ Subregions can be used for different layers (for example an input layer firing)
 
 
         if not isinstance(is_output, bool): # Type check for optional parameter is_output. Checks if it exists and then if it is a boolean.
-            raise TypeError("is_input must be of type bool")
+            raise TypeError("is_output must be of type bool")
         self.is_output = is_output
 
 
@@ -78,9 +78,15 @@ Subregions can be used for different layers (for example an input layer firing)
 
 
         while self.time.counter < self.time_frame:
-            self.step(input=input)
+            timed_result = self.step(input=input) # returns a list of all the output spike counts from current time step or None
+
+            if timed_result is not None:
+                for item in timed_result: print(item)
+
             self.time.counter += 1
-        # possible return of output?
+
+        if timed_result is not None:
+            return timed_result
 
 
     def step(self,input:List=None):
@@ -97,86 +103,84 @@ Subregions can be used for different layers (for example an input layer firing)
 
         @Deprecated :param conversion_method:
         :param input: An optional parameter that should contain the pre-converted input data (converted to either spike frequency or spike chance).
-        :return: output: An optional return value that contains the spike counts of each output neuron. Gets updated per recursion and returned at the end of the function.
+        :return: output: An optional return value of type List that contains the spike counts of each output neuron. Gets updated per recursion and returned at the end of the function.
 
         @author: CallMeMosaic
         @since: 0.0.1
         @version: 0.0.1
         """
 
-        output = [] # Needed at top level so the output list can be accessed and updated inside the while loop and returned outside it.
+        output = None # Needed at top level so the output list can be accessed and updated inside the while loop and returned outside it.
 
         if input is not None: # Type check for optional parameter input. Checks if it exists and then if it is a list.
 
-            if not isinstance(input,List):
+            if not isinstance(input,list):
                 raise TypeError("Input must be of type List")
 
             #input = conversion_method(input,True) # Deprecated, will be moved into a separate algorithm outside the region
 
             #TODO: FIX THE LOOPING THEN YOU'RE DONE!
 
-        while self.time.counter < self.time_frame: # Loop through the time frame. For time simulation
+        #while self.time.counter < self.time_frame: # Loop through the time frame. For time simulation @Deprecated
 
-            if isinstance(self.subregions, list) and self.subregions is not None: # Type check for optional parameter subregions. Make sure it is a list.
+        if isinstance(self.subregions, list) and self.subregions is not None: # Type check for optional parameter subregions. Make sure it is a list.
 
-                for i in range(len(self.subregions)): # Iterate through each element of the subregion.
+            for i in range(len(self.subregions)): # Iterate through each element of the subregion.
 
-                    if not isinstance(self.subregions[i], Region): # Check that each element is of type Region.
-                         raise TypeError(f"Critical Error: Object at Index {i} is NOT a Region. System cannot proceed like this and will terminate!")
+                if not isinstance(self.subregions[i], Region): # Check that each element is of type Region.
+                        raise TypeError(f"Critical Error: Object at Index {i} is NOT a Region. System cannot proceed like this and will terminate!")
 
-                    if self.subregions[i].is_input: # Check if the current subregion is an input region. If so, call its run function with the input parameter.
-                        self.subregions[i].run(input) # input param hands the list of converted input values down to subregion.
+                if self.subregions[i].is_input: # Check if the current subregion is an input region. If so, call its run function with the input parameter.
+                    self.subregions[i].step(input) # input param hands the list of converted input values down to subregion.
 
-                    elif self.subregions[i].is_output: # Check if the current subregion is an output region.
-                        self.subregions[i].run()
+                elif self.subregions[i].is_output: # Check if the current subregion is an output region.
+                    output.extend(self.subregions[i].step())
 
-                    else: # If the current subregion is neither an input nor an output region, call its run function without any parameters.
-                        self.subregions[i].run()
-
-
+                else: # If the current subregion is neither an input nor an output region, call its run function without any parameters.
+                    self.subregions[i].step()
 
 
-            else: # If Region does not have any subregions call each neuron in the network.
-
-                if isinstance(self.network, list) and self.network is not None: # Type check to make sure network exists and is a list.
-
-                    if self.is_input: # Check if the region itself is an input region.
 
 
-                        for i in range(len(self.network)): # Run through each input neuron.
+        else: # If Region does not have any subregions call each neuron in the network.
 
-                            if not isinstance(self.network[i], Neuron) or self.network[i] is None: # Type check to make sure neuron exists and is a Neuron.
+            if isinstance(self.network, list) and self.network is not None: # Type check to make sure network exists and is a list.
+
+                if self.is_input: # Check if the region itself is an input region.
+
+
+                    for i in range(len(self.network)): # Run through each input neuron.
+
+                        if not isinstance(self.network[i], Neuron) or self.network[i] is None: # Type check to make sure neuron exists and is a Neuron.
+                            raise TypeError(f"Critical Error: Object at Index {i} is NOT a Neuron. System cannot proceed like this and will terminate!")
+
+                        if input[i] is None: # Type check to make sure input exists and is not None.
+                            raise TypeError(f"Critical Error: Input at Index {i} is None. System cannot proceed like this and will terminate!")
+
+
+                        self.network[i].process(input[i]) # Call each neuron's process function with the input parameter
+
+                elif self.is_output: # Check if the region itself is an output region.
+                    output = []
+
+
+                    for i in range(len(self.network)): # Iterate through each neuron.
+
+                        if not isinstance(self.network[i], Neuron) or self.network[i] is None: # Type check to make sure neuron exists and is a Neuron.
+                            raise TypeError(f"Critical Error: Object at Index {i} is NOT a Neuron. System cannot proceed like this and will terminate!")
+
+                        output.append(self.network[i].process()) # Append the output of each neuron to the output list
+
+
+                else:
+                    for i in range(len(self.network)): # Iterate through each neuron. <-- This is the normal case for non-specific regions.
+
+                        if not isinstance(self.network[i], Neuron) or self.network[i] is None: # Type check to make sure neuron exists and is a Neuron.
                                 raise TypeError(f"Critical Error: Object at Index {i} is NOT a Neuron. System cannot proceed like this and will terminate!")
 
-                            if input[i] is None: # Type check to make sure input exists and is not None.
-                                raise TypeError(f"Critical Error: Input at Index {i} is None. System cannot proceed like this and will terminate!")
+                        self.network[i].process() # Run the neuron's run method
 
 
-                            self.network[i].process(input[i]) # Call each neuron's process function with the input parameter
-
-                    elif self.is_output: # Check if the region itself is an output region.
-
-
-                        for i in range(len(self.network)): # Iterate through each neuron.
-
-                            if not isinstance(self.network[i], Neuron) or self.network[i] is None: # Type check to make sure neuron exists and is a Neuron.
-                                raise TypeError(f"Critical Error: Object at Index {i} is NOT a Neuron. System cannot proceed like this and will terminate!")
-
-                            output.append(self.network[i].process()) # Append the output of each neuron to the output list
-
-
-                    else:
-                        for i in range(len(self.network)): # Iterate through each neuron. <-- This is the normal case for non-specific regions.
-
-                            if not isinstance(self.network[i], Neuron) or self.network[i] is None: # Type check to make sure neuron exists and is a Neuron.
-                                    raise TypeError(f"Critical Error: Object at Index {i} is NOT a Neuron. System cannot proceed like this and will terminate!")
-
-                            self.network[i].process() # Run the neuron's run method
-
-
-
-
-            self.time.counter += 1 # Increment the time counter
 
         if isinstance(output, list) and output is not None: # Check if the output exists and is of type list.
             return output

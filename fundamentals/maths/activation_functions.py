@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def linear(x):
+def Linear(x):
     return x
 
 
