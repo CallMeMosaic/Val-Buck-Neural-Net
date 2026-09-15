@@ -20,7 +20,7 @@ def cable_function(
 
     :param injected_current: The current injected into the soma/dendrite will be added onto the pre-existing current.
     :param membrane_resistance: Represents the membrane resistance per unit length. Higher resistance values lead to less current loss over distance.
-    :param lambda: The length constant, governing the general spatial decay.
+    :param lambda: The length is constant, governing the general spatial decay.
     :return:
     """
 
