@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class NotEnoughCharge(Exception):
     pass
 
@@ -7,7 +10,7 @@ class NeuronError(Exception):
 class NeuronDNAError(NeuronError):
     """Raised when there is a mismatch between DNA data and actual data"""
 
-    def __init__(self, module:type, expected:type, actual:type):
+    def __init__(self, module:Any, expected:Any, actual:Any):
         module = module
         expected = expected
         actual = actual

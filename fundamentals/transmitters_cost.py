@@ -9,3 +9,4 @@ class TransmittersCost(IntEnum):
     SEROTONIN = 2
     NOREPINEPHRINE = 2
     ACETYLCHOLINE = 2
+    FAILED_OPERATION = 1

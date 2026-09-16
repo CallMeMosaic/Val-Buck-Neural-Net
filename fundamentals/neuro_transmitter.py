@@ -10,7 +10,7 @@ class NeuroTransmitter:
     Primary class for neurotransmitters
 
     :type: dataclass
-    :param type: Transmitter type.
+    :param nt_type: Transmitter type.
     :param value: Transmitter value (for interactions within neurons).
 
 
@@ -21,11 +21,11 @@ class NeuroTransmitter:
     """
     def __init__(
         self,
-        type: Transmitters,
+        nt_type: Transmitters,
         cost: TransmittersCost,
         signal: Signal
 
     ):
-        self.type = type
+        self.nt_type = nt_type
         self.cost = cost
         self.signal = signal

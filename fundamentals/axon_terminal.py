@@ -44,7 +44,7 @@ class AxonTerminal:
             raise ValueError("Length must be greater than 0 and cannot be None")
         self.length = length
 
-        if effector_type not in Transmitters or effector_type is None or effector_type not in parent_axon.nucleus.dna.allowed_synthesises:
+        if effector_type not in Transmitters or effector_type is None or effector_type not in parent_axon.nucleus.dna.allowed_syntheses:
             raise ValueError(f"Invalid effector type: {effector_type}")
         self.effector_type = effector_type
 

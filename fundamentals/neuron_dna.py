@@ -1,6 +1,10 @@
+from numbers import Number
+
+from fundamentals.control.time import Time
 from fundamentals.neuro_transmitter import NeuroTransmitter
 from fundamentals.transmitters import Transmitters
 
+# TODO: THIS NEEDS TO INCLUDE ALL CONFIG DATA FOR AN ENTIRE NEURON.
 
 #@dataclass(frozen=True) # Makes the instance immutable
 class NeuronDNA:
@@ -17,7 +21,7 @@ class NeuronDNA:
     :ivar allowed_receptors: A list of neurotransmitters that the neuron can
                              receive.
     :type allowed_receptors: Tuple[Transmitters]
-    :ivar allowed_synthesises: A list of neurotransmitters that the neuron can
+    :ivar allowed_syntheses: A list of neurotransmitters that the neuron can
                                synthesize.
     :type allowed_syntheses: Tuple[Transmitters]
 
@@ -28,14 +32,28 @@ class NeuronDNA:
     def __init__(
             self,
             allowed_receptors: tuple[Transmitters], # Determines which Transmitters the neuron can receive
-            allowed_syntheses: tuple[Transmitters] # Determines which Transmitters the neuron can synthesize
+            allowed_syntheses: tuple[Transmitters],# Determines which Transmitters the neuron can synthesize
+            signal_frequency: float, # Determines the frequency of the neuron's signal
+            global_time: Time, # References the internal clock so that each neuron can access it in every method without needing parameters for it.
     ):
-        # Check if the lists are not empty
-        if allowed_receptors is None:
-            raise ValueError("Allowed receptors cannot be None")
-        # Check if the lists are not empty
+        # Check if allowed_receptors is according to type hint
+        if not isinstance(allowed_receptors,tuple):
+            raise ValueError("Allowed receptors needs to be a tuple")
+
         if len(allowed_receptors) == 0:
             raise ValueError("Allowed receptors cannot be empty")
+
+        for transmitter in allowed_receptors:
+            if not isinstance(transmitter,Transmitters):
+                raise ValueError("Allowed receptors need to be instances of Transmitters")
+
+        self.allowed_receptors = allowed_receptors
+
+
+        # Check if allowed_syntheses is according to type hint
+        if not isinstance(allowed_syntheses,tuple):
+            raise ValueError("Allowed synthesis needs to be a tuple")
+
         if len(allowed_syntheses) == 0:
             raise ValueError("Allowed syntheses cannot be empty")
 
@@ -95,6 +113,8 @@ class NeuronDNA:
         :return: A boolean indicating if the transmitter can be synthesized.
         :rtype: Bool
         """
-        return transmitter in self.allowed_synthesises
+        return transmitter in self.allowed_syntheses
 
 #TODO: MAKE TUPLES PROPERTIES VIA @PROPTERY TO PREVENT THEM FROM EXTERNAL MODIFICATION
+#TODO: FIX NONABLE ISSUE
+#TODO: DNA IS THE CONFIG FILE ~Alyssa

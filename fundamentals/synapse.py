@@ -2,7 +2,10 @@ from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.synaptic_membrane import SynapticMembrane
 
-#TODO: Membrane should have resistence which should be deducted from the signal
+#TODO: Membrane should have resistence which should be deducted from the signal.
+#TODO: THIS CLASS NEEDS TO DELETE THE PRIOR REFERENCES, SO GC CAN COLLLECT THEM.
+#TODO: NT MUST BE DESTROYED AS IF DENDRITE BRACH REFUSES IT.
+#TODO: SUCCESSFUL TRANMISSION NEEDS TO STRENGTHEN THE SYNAPSE. AKA LOWER MEMBRANE RESISTANCE.
 
 
 class Synapse:
