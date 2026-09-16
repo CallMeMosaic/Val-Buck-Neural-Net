@@ -1,8 +1,10 @@
 import numpy as np
 
 
-def Linear(x):
-    return x
+
+class Linear(ActivationFunction):
+    def calculate(self,x: float) -> float:
+        return x
 
 
 def ReLu(x):
