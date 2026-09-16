@@ -59,6 +59,13 @@ class DendriteBranch:
         self.branch_dna = branch_dna
 
 
+        # Ensure Mitochondrion passes type hints
+        if not isinstance(mitochondrion, Mitochondrion) or mitochondrion is None:
+            raise TypeError("mitochondrion must instance of class Mitochondrion")
+
+        self.mitochondrion = mitochondrion
+
+
         # Ensure the current receptor type matches the DNA
         if not isinstance(receptor_type, Transmitters) or receptor_type is None:
             raise TypeError("receptor_type must instance of class Transmitters")
