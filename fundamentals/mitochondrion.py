@@ -2,6 +2,9 @@ from dataclasses import dataclass
 
 from fundamentals.transmitters_cost import TransmittersCost
 
+#TODO: CHANGE MITOCHONDRION CONSUME ALGORITHM
+#TODO: ALWAYS CONSUME EVEN IF NOT ENOUGH, BUT USE max FUNCTION TO SET TO 0 IF CONSUMPTION WAS TOO BIG
+
 
 #@dataclass
 class Mitochondrion:
