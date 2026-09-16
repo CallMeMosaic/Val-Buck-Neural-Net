@@ -26,7 +26,10 @@ class DendriteBranch:
 
     :author: CallMeMosaic
     :since: 0.0.1
-    :version: 0.0.1
+    :version: 0.0.2
+
+    Changelog:
+        - 0.0.2: Added proper type hints and removed unnecessary stuff
     """
     def __init__(
             self,
