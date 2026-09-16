@@ -34,10 +34,12 @@ class DendriteBranch:
     """
     def __init__(
             self,
-            length: float = 1.0,  # default value is 1.0, needed for calculations later
-            receptor_type: Transmitters = None,  # From transmitters enum
-            parent_axon_terminal: AxonTerminal = None,
-            # Makes sure that the axon terminal's type matches the receptor type
+            current_signal: Signal,
+            mitochondrion: Mitochondrion, # The Powerhouse of each cell innit
+            receptor_type: Transmitters,  # From transmitters enum
+            branch_dna: NeuronDNA, # Ensures that the Branches cannot receive signals from neurons that use different Neuro Transmitters
+            length: float = 1.0, # default value is 1.0, needed for spatial decay calculation
+            width: float = 1.0, # default value is 1.0, needed for spatial decay calculation
             name: Optional[str] = None, # Optional name for easier debugging
             current_signal: Signal = None,
             current_NT: Transmitters = None, # The Neuro Transmitter type that was handed to the Branch
