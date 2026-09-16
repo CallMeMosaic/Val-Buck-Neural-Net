@@ -37,14 +37,35 @@ class NeuronDNA:
         if len(allowed_receptors) == 0:
             raise ValueError("Allowed receptors cannot be empty")
         if len(allowed_syntheses) == 0:
-            raise ValueError("Allowed synthesises cannot be empty")
-        # Check if the lists are not None
-        if allowed_syntheses is None:
-            raise ValueError("Allowed synthesises cannot be None")
+            raise ValueError("Allowed syntheses cannot be empty")
 
-        # Only then assign the lists
-        self.allowed_receptors = allowed_receptors
-        self.allowed_synthesises = allowed_syntheses
+        for transmitter in allowed_syntheses:
+            if not isinstance(transmitter,Transmitters):
+                raise ValueError("Allowed syntheses need to be instances of Transmitters")
+
+        self.allowed_syntheses = allowed_syntheses
+
+
+        # Check if signal frequency is according to type hint
+        if not isinstance(signal_frequency,Number) or isinstance(signal_frequency, bool):
+            if not float(signal_frequency):
+                raise ValueError("Signal frequency needs to be a at least a number!")
+            else:
+                signal_frequency = float(signal_frequency)
+
+        if float(signal_frequency) <= 0:
+            raise ValueError("Signal frequency needs to be a positive number!")
+
+        self.signal_frequency = signal_frequency
+
+
+        # Type Check for global_time
+        if not isinstance(global_time, Time):
+            raise ValueError("Global time needs to be an instance of Time!")
+
+        self.global_time = global_time
+
+
 
     def can_receive(self, transmitter: NeuroTransmitter) -> bool:
         """
