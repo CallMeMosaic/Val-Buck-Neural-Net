@@ -93,6 +93,12 @@ class Mitochondrion:
         print("I am a mitochondrion, the powerhouse of the cell!")
 
 
+
+
+
+
+
+
 class GodMitochondrion(Mitochondrion):
 
     """
