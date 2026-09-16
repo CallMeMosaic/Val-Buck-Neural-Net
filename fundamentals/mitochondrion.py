@@ -78,6 +78,8 @@ class Mitochondrion:
             self.current_charge -= effective_amount
             return True
 
+
+
     def recharge(self, amount: float) -> None:
         """
         Recharges the current charge of the object with the specified amount, ensuring that
