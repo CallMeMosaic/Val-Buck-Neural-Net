@@ -44,13 +44,27 @@ class DendriteBranch:
     ):
         if length <= 0:
             raise ValueError("Length must be greater than 0")
-        if receptor_type not in Transmitters:
-            raise ValueError("Invalid receptor type")
-        if receptor_type != parent_axon_terminal.effector_type:
-            raise ValueError(f"Transmitter mismatch: Dendrite expects: {receptor_type}, "
-                             f" but connecting axon sends: {parent_axon_terminal.effector_type}")
-        if parent_axon_terminal is None:
-            raise ValueError("Parent axon terminal cannot be None")
+
+        self.length = length
+
+
+        # Ensure width passes type hint and is reasonable
+        if not isinstance(width, Number) or isinstance(width, bool):
+            raise TypeError("Width must be a number")
+        else:
+            width = float(width)
+
+        if width <= 0:
+            raise ValueError("Width must be greater than 0")
+
+        self.width = width
+
+
+        # Ensure parent axon terminal passes type hint
+        if not isinstance(parent_axon_terminal, AxonTerminal) or parent_axon_terminal is None:
+            raise TypeError("Parent axon terminal must be an instance of class AxonTerminal")
+
+
 
         # Make sure current NT is of the correct types
         if current_NT is not None or NeuroTransmitter:
