@@ -2,6 +2,8 @@ from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.synaptic_membrane import SynapticMembrane
 
+#TODO: Membrane should have resistence which should be deducted from the signal
+
 
 class Synapse:
     def __init__(
