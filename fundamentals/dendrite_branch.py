@@ -42,6 +42,36 @@ class DendriteBranch:
             current_NT: Transmitters = None, # The Neuro Transmitter type that was handed to the Branch
             last_NT: Transmitters = None, # For applying effects and tracking in Dendrite
     ):
+        # Ensure current Signal follows type hints
+        if not isinstance(current_signal, Signal) or current_signal is None:
+            raise TypeError("current_signal must instance of class Signal")
+
+        self.current_signal = current_signal
+
+
+        # Ensure the DNA passes type hints
+        if not isinstance(branch_dna, NeuronDNA) or branch_dna is None:
+            raise TypeError("branch_dna must instance of class NeuronDNA")
+
+        self.branch_dna = branch_dna
+
+
+        # Ensure the current receptor type matches the DNA
+        if not isinstance(receptor_type, Transmitters) or receptor_type is None:
+            raise TypeError("receptor_type must instance of class Transmitters")
+
+        if branch_dna.allowed_receptors != receptor_type:
+            raise NeuronDNAError(module=self, expected=branch_dna.allowed_receptors, actual=receptor_type)
+
+        self.receptor_type = receptor_type
+
+
+        # Ensure length passes type hint and is reasonable
+        if not isinstance(length, Number) or isinstance(length, bool):
+            raise TypeError("Length must be a number")
+        else:
+            length = float(length)
+
         if length <= 0:
             raise ValueError("Length must be greater than 0")
 
