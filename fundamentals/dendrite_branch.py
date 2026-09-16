@@ -30,6 +30,7 @@ class DendriteBranch:
 
     Changelog:
         - 0.0.2: Added proper type hints and removed unnecessary stuff
+                 Also added parameter for dna of soma, so no branch can be build that would accept invalid signals (neuron cancer? I mean biologically it is possible probalby???)
     """
     def __init__(
             self,
