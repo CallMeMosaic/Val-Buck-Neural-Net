@@ -80,6 +80,21 @@ class Dendrite:
         self.length = length
 
 
+        # Ensure the width is greater than 0 and is according to type hint.
+
+        if width is not None:
+            if not isinstance(width, Number) or isinstance(width, bool):
+                raise TypeError("Width must be of type Number!")
+            else:
+                if width <= 0:
+                    raise ValueError("Width must be greater than 0!")
+                width = int(width)
+        else:
+            raise ValueError("Width cannot be None!")
+
+        self.width = width
+
+
         # Ensure the Mitochondrion is not none or not of type mitochondrion
 
         if not isinstance(mitochondrion,Mitochondrion) or mitochondrion is None:
