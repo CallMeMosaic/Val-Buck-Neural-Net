@@ -1,7 +1,11 @@
 from math import exp
 
 
-def lif_model(time: float, tau: float,new_input: float, current_voltage: float)-> float:
+def lif_model(
+        leak_factor: float = 0.5,
+        injected_current: float = -50.0,
+        current_charge: float = -50.0
+)-> float:
     """
     Compute the new membrane potential for a leaky integrate-and-fire (LIF) neuron model.
 
