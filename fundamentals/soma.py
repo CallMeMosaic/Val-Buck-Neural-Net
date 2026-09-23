@@ -245,8 +245,10 @@ class Soma:
 
 
 
-            if dendrite.charge > dendrite.local_threshold:
-                cable_function(dendrite.charge, dendrite.baseline_charge, self.)
+
+
+
+
 
 
 
