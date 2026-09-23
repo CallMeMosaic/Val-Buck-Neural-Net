@@ -195,14 +195,16 @@ class Soma:
         injected_charge = branch.current_signal.value
         branch.current_signal = None
 
-        # Step 2: Simulate the way from dendrite branch to dendrite
-        dendrite.charge = cable_function(None,
-                                         injected_charge,
-                                         dendrite.charge,
-                                         branch.space_constant,
-                                         branch.membrane_resistance,
-                                         branch.attenuation_factor,
-                                         branch.time_scaling_factor,)
+
+            # Step 2: Simulate the way from dendrite branch to dendrite
+            dendrite.charge = cable_function(None,
+                                            injected_charge,
+                                            dendrite.charge,
+                                            branch.space_constant,
+                                            branch.membrane_resistance,
+                                            branch.attenuation_factor,
+                                            branch.time_scaling_factor,)
+
 
 
 
