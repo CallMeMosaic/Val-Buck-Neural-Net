@@ -1,3 +1,4 @@
+import math
 from math import exp
 
 
@@ -30,4 +31,7 @@ def lif_model(
     :version: 0.0.1
     """
 
-    return ( current_voltage * exp(-time/tau)+new_input)
+    #TODO: COMPLEXITY AND O-NOTATION
+    #TODO: DOCSTRING EDIT
+
+    return leak_factor * current_charge + injected_current

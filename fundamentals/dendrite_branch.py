@@ -44,7 +44,7 @@ class DendriteBranch:
     """
     def __init__(
             self,
-            current_signal: Signal,
+            current_signal: Signal | None,
             mitochondrion: Mitochondrion, # The Powerhouse of each cell innit
             receptor_type: Transmitters,  # From transmitters enum
             branch_dna: NeuronDNA, # Ensures that the Branches cannot receive signals from neurons that use different Neuro Transmitters
@@ -53,8 +53,8 @@ class DendriteBranch:
             membrane_resistance: float = 1.0,
             name: Optional[str] = None, # Optional name for easier debugging
     ):
-        # Ensure current Signal follows type hints
-        if not isinstance(current_signal, Signal) or current_signal is None:
+        # Ensure current Signal follows type hints, Can be None as it is set to none when signal is processed
+        if current_signal is not None and not isinstance(current_signal, Signal):
             raise TypeError("current_signal must instance of class Signal")
 
         self.current_signal = current_signal

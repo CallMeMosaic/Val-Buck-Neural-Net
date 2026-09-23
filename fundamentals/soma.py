@@ -3,17 +3,18 @@ from typing import Optional, Tuple
 
 from numpy.f2py.symbolic import Op
 
+from fundamentals import dendrite
 from fundamentals.Signal import Signal
 from fundamentals.axon import Axon
 from fundamentals.dendrite import Dendrite
 from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.maths.decay_function import cable_function
+from fundamentals.maths.lif_model import lif_model
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.nucleus import Nucleus
 from fundamentals.transmitters import Transmitters
 from fundamentals.transmitters_cost import TransmittersCost
 
-#TODO: Needs threshold
 
 class Soma:
     """
@@ -47,6 +48,9 @@ class Soma:
     :since: 0.0.1
     :version: 0.0.1
     """
+
+    #TODO: DOCSTING EDIT AND NEW VERSION
+
 
     def __init__(self,
                  nucleus: Nucleus, # The Cells Nucleus, containing the DNA of the cell and housing (FUTURE UPDATE) methods to manage the cells' DNA
@@ -114,6 +118,11 @@ class Soma:
         self.baseline_charge = baseline_charge
 
 
+        # Create current Charge from baseline charge
+
+        self.current_charge = self.baseline_charge
+
+
         # Ensure Typing for Threshold is according to the type hints
 
         if threshold is not None:
@@ -166,6 +175,8 @@ class Soma:
 
 
 
+
+
     def branch_process(self, branch: DendriteBranch, dendrite: Dendrite):
         """
         Applies the cable function to all the dendrite branches and updates the dendrite charge
@@ -184,16 +195,20 @@ class Soma:
         :return:
         """
 
+        #TODO: O-NOTATION
+        #TODO: DOCSTRING EDIT
+
         # Step 0: Check if the Mitochondrion of the Branch can handle the current action and if there is a signal to process
         if not branch.mitochondrion.consume(TransmittersCost.TRANSPORT_INTERNALLY):
             return
 
         if branch.current_signal is None: # Ensures branches are only processed if there is a signal to process to save computation
-            return
+            injected_charge = 0
 
-        # Step 1: Remove value from a signal object and remove reference for GC
-        injected_charge = branch.current_signal.value
-        branch.current_signal = None
+        else:
+            # Step 1: Remove value from a signal object and remove reference for GC
+            injected_charge = branch.current_signal.value
+            branch.current_signal = None
 
 
             # Step 2: Simulate the way from dendrite branch to dendrite
@@ -209,6 +224,12 @@ class Soma:
 
 
     def dendrite_process(self,dendrite: Dendrite):
+        #TODO: DOCSTRING
+        #TODO: O-NOTATION AND CALCULATION COMPLEXITY
+
+
+        dendrite_prior_charge = dendrite.charge
+        dendrite_injected_charge = 0
 
         for branch in dendrite.branches:
 

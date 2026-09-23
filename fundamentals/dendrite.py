@@ -45,10 +45,12 @@ class Dendrite:
     :since: 0.0.1
     :version: 0.0.3
     """
+
+    # TODO: DOCSTRING EDIT
+
     def __init__(
             self,
             mitochondrion: Mitochondrion,
-            related_soma: Soma,  # Needed for handing off the processed value to the soma
             local_threshold: float = -44, # mV Minimum local charge necessary for a local spike -> Soma | Should be around -52 to -41 mV
             baseline_charge: float = -70, # Determines the base charge, so current charge can also be reset to this | Should be around -75 to -60 mV
             branches= None, # All the branches of the dendrite
@@ -60,6 +62,7 @@ class Dendrite:
 
     ):
         # Ensure branches are existent
+
         if branches is None or not isinstance(branches, list):
             raise TypeError("Dendrite must have at least one branch to function!")
 
@@ -71,11 +74,16 @@ class Dendrite:
 
 
         # Ensure the length is greater than 0 and is according to type hint.
-        if not isinstance(length, float) or length is None:
-            raise TypeError("Length must be of type float!")
 
-        if length <= 0:
-            raise ValueError("Length must be greater than 0!")
+        if length is not None:
+            if not isinstance(length, Number) or isinstance(length, bool):
+                raise TypeError("Length must be of type Number!")
+            else:
+                if length <= 0:
+                    raise ValueError("Length must be greater than 0!")
+                length = int(length)
+        else:
+            raise ValueError("Length cannot be None!")
 
         self.length = length
 
@@ -103,14 +111,8 @@ class Dendrite:
         self.mitochondrion = mitochondrion
 
 
-        # Ensure the Soma is not none or not of type soma
-        if not isinstance(related_soma, Soma) or related_soma is None:
-            raise TypeError("Soma must be instance of type Soma!")
-
-        self.related_soma = related_soma
-
-
         # Ensure local_threshold is within reasonable parameters and of type float
+
         if not isinstance(local_threshold, Number) or isinstance(local_threshold, bool):
             raise TypeError("Baseline charge must be of type float!")
 
@@ -119,7 +121,9 @@ class Dendrite:
 
         self.local_threshold = local_threshold
 
+
         # Ensure baseline_charge is within reasonable parameters and of type float
+
         if not isinstance(baseline_charge, Number) or isinstance(baseline_charge, bool):
             raise TypeError("Baseline charge must be of type float!")
 
@@ -130,6 +134,7 @@ class Dendrite:
 
 
         # Ensure time is of type Time
+
         if not isinstance(global_time, Time) or global_time is None:
             raise TypeError("Global time must be of type Time!")
 
@@ -137,43 +142,19 @@ class Dendrite:
 
 
         # Ensure activation function is callable
+
         if not isinstance(activation_function, ActivationFunction):
             raise TypeError("Activation function must be of type ActivationFunction!")
 
         self.activation_function: Callable
         self.activation_function = activation_function.calculate
 
-        # Dynamic Properties necessary to keep track of dendrite branches and transmitters
-        self.accepted_transmitters: List[Transmitters] = []
-        self.branches: List[DendriteBranch] = []
 
-        # Add charge to neuron
+        # Add charge to dendrite
+
         charge: float = baseline_charge
         self.charge = charge
 
-
-        # Ensure length passes a type hint and is reasonable
-        if not isinstance(length, Number) or isinstance(length, bool):
-            raise TypeError("Length must be a number")
-        else:
-            length = int(length)
-
-        if length <= 0:
-            raise ValueError("Length must be greater than 0")
-
-        self.length = length
-
-
-        # Ensure width passes type hint and is reasonable
-        if not isinstance(width, Number) or isinstance(width, bool):
-            raise TypeError("Width must be a number")
-        else:
-            width = int(width)
-
-        if width <= 0:
-            raise ValueError("Width must be greater than 0")
-
-        self.width = width
 
         if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
             raise TypeError("Membrane resistance must be a number")
@@ -196,7 +177,10 @@ class Dendrite:
 
         self.attenuation_factor = math.exp(-length / self.space_constant)
 
+        self.leak_factor = math.exp(-(DELTA_T / self.tau_membrane))
+
         self.time_scaling_factor = (DELTA_T / self.tau_membrane)
+
 
 
     def create_and_add_branch(self, length: float, receptor_type: Transmitters, target_axon_terminal: AxonTerminal):
