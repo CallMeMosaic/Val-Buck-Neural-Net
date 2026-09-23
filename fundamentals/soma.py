@@ -211,6 +211,37 @@ class Soma:
         for branch in dendrite.branches:
 
             self.branch_process(branch,dendrite)
+            # Checks branch, if no signal at branch, nothing happens
+            # If branch mitochodrium cannot accomodate the internal transport of a charge, nothing happens
+
+
+        # Calculate the charge that all the branches have injected into the dendrite
+
+        if not dendrite_prior_charge == dendrite.charge:
+            dendrite_injected_charge = dendrite_prior_charge - dendrite.charge
+
+
+        # Apply leaky function before firing, so that it is always applied and can possibly prevent a fire
+        dendrite.charge = lif_model(dendrite.leak_factor,
+                                    dendrite.injected_charge,
+                                    dendrite_prior_charge)
+
+        # Check if the dendrite has reached its local threshold
+        if dendrite.charge >= dendrite.local_threshold:
+
+            # Validate that can be fired
+            if dendrite.mitochondrion.consume(TransmittersCost.FIRE):
+
+                # Run the cable function to pass the charge from the dendrite to the soma
+                self.current_charge = cable_function(dendrite.charge,
+                                                    dendrite.baseline_charge,
+                                                    self.current_charge,
+                                                    dendrite.space_constant,
+                                                    dendrite.membrane_resistance,
+                                                    dendrite.attenuation_factor,
+                                                    dendrite.time_scaling_factor)
+
+
 
             if dendrite.charge > dendrite.local_threshold:
                 cable_function(dendrite.charge, dendrite.baseline_charge, self.)
