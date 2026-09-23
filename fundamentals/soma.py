@@ -1,4 +1,7 @@
+from numbers import Number
 from typing import Optional, Tuple
+
+from numpy.f2py.symbolic import Op
 
 from fundamentals.Signal import Signal
 from fundamentals.axon import Axon
@@ -44,59 +47,123 @@ class Soma:
     :since: 0.0.1
     :version: 0.0.1
     """
-    def __init__(
-            self,
-            axon: Axon,
-            dendrites: list[Dendrite],
-            mitochondrion: Mitochondrion,
-            nucleus: Nucleus,
-            threshold: float = 0.5,
-            refractory_period: float = 0.5,
-            name: Optional[str] = None,
-            fired_stat: Bool = False
-    ):
-        # Axon and Dendrites need to nullable so a Soma can also be created without them (initial creation)
-        self.axon = axon
-        self.dendrites = dendrites
-        self.name = name
 
-        if mitochondrion is None:
-            raise ValueError("Mitochondrion cannot be None")
-        self.mitochondrion = mitochondrion
+    def __init__(self,
+                 nucleus: Nucleus, # The Cells Nucleus, containing the DNA of the cell and housing (FUTURE UPDATE) methods to manage the cells' DNA
+                 mitochondrion:Mitochondrion, # The Cells Mitochondrion, necessary for energy management of the soma.
+                 axon: Axon, # The axon connected to the soma, necessary for delivering signals to other neurons.
+                 dendrites: list[Dendrite], # A list of all dendrites connected to the soma, necessary for receiving signals from other neurons.
+                 baseline_charge: float = -50.0, # mV This is the resting potential of the Soma, the charge paramter will always be reset to this value after firing.
+                 threshold: float = -50.0, # mV This is the action potential threshold of the Soma, if the charge exceeds/meets this value, the Soma will fire.
+                 refractory_period: int = 5, # The refractory period of the Soma, the time it takes for the Soma to recover from firing.
+                 fired_stat: bool = False, # A boolean indicating whether the Soma has fired in the previous timestep, gets reset after the refractory period is over.
+                 name: Optional[str] = None
+                 ):
 
-        if nucleus is None:
-            raise ValueError("Nucleus cannot be None")
+        # Ensure Typing for Nucleus is according to the type hints
+
+        if not isinstance(nucleus, Nucleus) or nucleus is None:
+            raise TypeError("Nucleus must be instance of class Nucleus")
+
         self.nucleus = nucleus
 
-        if threshold <= 0:
-            raise ValueError("Threshold must be greater than 0")
+
+        # Ensure Typing for Mitochondrion is according to the type hints
+
+        if not isinstance(mitochondrion, Mitochondrion) or mitochondrion is None:
+            raise TypeError("Mitochondrion must be instance of class Mitochondrion")
+
+        self.mitochondrion = mitochondrion
+
+        # Ensure Typing for Axon is according to the type hints
+
+        if not isinstance(axon, Axon) or axon is None:
+            raise TypeError("Axon must be instance of class Axon")
+
+        self.axon = axon
+
+        # Ensure Typing for Dendrites is according to the type hints
+
+        if not isinstance(dendrites, list) or dendrites is None:
+            raise TypeError("Dendrites must be instance of class list")
+
+        for dendrite in dendrites:
+            if not isinstance(dendrite, Dendrite) or dendrite is None:
+                raise TypeError("Dendrite objects within Dendrites must be instance of class Dendrite")
+
+        self.dendrites = dendrites
+
+
+        # Ensure Typing for Baseline Charge is according to the type hints
+
+        if baseline_charge is not None:
+
+            if not isinstance(baseline_charge, Number) or isinstance(baseline_charge, bool):
+                raise TypeError("Baseline charge must be instance of class Number and not bool")
+
+            else:
+
+                if baseline_charge > 0:
+                    raise ValueError("Baseline charge must be below 0")
+
+                baseline_charge = float(baseline_charge)
+
+        else:
+            raise TypeError("Baseline charge cannot be None")
+
+        self.baseline_charge = baseline_charge
+
+
+        # Ensure Typing for Threshold is according to the type hints
+
+        if threshold is not None:
+
+            if not isinstance(threshold, Number) or isinstance(threshold, bool):
+                raise TypeError("Threshold must be instance of class Number and not bool")
+
+            else:
+
+                if threshold > 0:
+                    raise ValueError("Threshold must be greater than 0")
+
+                threshold = float(threshold)
+
+        else:
+            raise TypeError("Threshold cannot be None")
+
         self.threshold = threshold
 
-        if refractory_period <= 0:
-            raise ValueError("Refractory period must be greater than 0")
+
+        # Ensure the Refractory Period is according to the type hints
+
+        if refractory_period is not None:
+
+            if not isinstance(refractory_period, Number) or isinstance(refractory_period, bool):
+                raise TypeError("Refractory Period must be instance of class Number and not bool")
+
+            else:
+
+                if refractory_period <= 0:
+                    raise ValueError("Refractory Period must be greater than 0")
+
+                refractory_period = int(refractory_period)
+
+        else:
+            raise TypeError("Refractory Period cannot be None")
+
         self.refractory_period = refractory_period
 
-        # Needed to determine if the soma needs to enter Blackout state
-        is_exhausted = False
-        self.is_exhausted = is_exhausted
 
-        # Needed to check if the Soma is in a refractory period or not
-        refractory_timer = 1
-        self.refractory_timer = refractory_timer
+        # Ensure the Fired Stat is according to the type hints
 
-        # Needed to
+        if not isinstance(fired_stat, bool) or fired_stat is None:
+            raise TypeError("Fired Stat must be instance of class bool and not None")
 
+        self.fired_stat = fired_stat
 
-    def dendrite_process(self):
+        # TEMP THING FOR NAME
+        self.name = name
 
-        for dendrite in self.dendrites:
-
-            for branch in dendrite.branches:
-
-                self.branch_process(branch, dendrite)
-
-                if dendrite.charge > dendrite.local_threshold:
-                    cable_function()
 
 
     def branch_process(self, branch: DendriteBranch, dendrite: Dendrite):
@@ -117,13 +184,16 @@ class Soma:
         :return:
         """
 
-        # Step 0: Check if the Mitochondrion of the Branch can handle the current action
+        # Step 0: Check if the Mitochondrion of the Branch can handle the current action and if there is a signal to process
         if not branch.mitochondrion.consume(TransmittersCost.TRANSPORT_INTERNALLY):
-            pass
+            return
+
+        if branch.current_signal is None: # Ensures branches are only processed if there is a signal to process to save computation
+            return
 
         # Step 1: Remove value from a signal object and remove reference for GC
-        injected_charge = branch.current_Signal.value
-        branch.current_Signal = None
+        injected_charge = branch.current_signal.value
+        branch.current_signal = None
 
         # Step 2: Simulate the way from dendrite branch to dendrite
         dendrite.charge = cable_function(None,
@@ -133,6 +203,17 @@ class Soma:
                                          branch.membrane_resistance,
                                          branch.attenuation_factor,
                                          branch.time_scaling_factor,)
+
+
+
+    def dendrite_process(self,dendrite: Dendrite):
+
+        for branch in dendrite.branches:
+
+            self.branch_process(branch,dendrite)
+
+            if dendrite.charge > dendrite.local_threshold:
+                cable_function(dendrite.charge, dendrite.baseline_charge, self.)
 
 
 
