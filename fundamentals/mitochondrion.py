@@ -63,6 +63,10 @@ class Mitochondrion:
             consumed, and False if there was not enough charge available.
         :rtype: Bool
         :raises ValueError: If the provided amount is not greater than zero.
+
+        CONSUMPTION:
+        2 FLOPS
+        2 Logic Instructions
         """
 
         # Ensure that the amount to consume is not 0

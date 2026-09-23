@@ -3,6 +3,8 @@ from typing import Optional, Tuple
 from fundamentals.Signal import Signal
 from fundamentals.axon import Axon
 from fundamentals.dendrite import Dendrite
+from fundamentals.dendrite_branch import DendriteBranch
+from fundamentals.maths.decay_function import cable_function
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.nucleus import Nucleus
 from fundamentals.transmitters import Transmitters
@@ -84,6 +86,56 @@ class Soma:
 
         # Needed to
 
+
+    def dendrite_process(self):
+
+        for dendrite in self.dendrites:
+
+            for branch in dendrite.branches:
+
+                self.branch_process(branch, dendrite)
+
+                if dendrite.charge > dendrite.local_threshold:
+                    cable_function()
+
+
+    def branch_process(self, branch: DendriteBranch, dendrite: Dendrite):
+        """
+        Applies the cable function to all the dendrite branches and updates the dendrite charge
+        per branch.
+        Needs to be passed the Dendrite object to process, it's specific sub-branches.
+        Also ensures the Signal object is deleted after being used for transmitting the charge.
+
+        :param dendrite = Dendrite: The dendrite object to process.
+        :param branch = DendriteBranch: The branch object to process.
+
+
+        CONSUMPTION:
+        FLOPS = 10
+        Logic Instructions = 4
+
+        :return:
+        """
+
+        # Step 0: Check if the Mitochondrion of the Branch can handle the current action
+        if not branch.mitochondrion.consume(TransmittersCost.TRANSPORT_INTERNALLY):
+            pass
+
+        # Step 1: Remove value from a signal object and remove reference for GC
+        injected_charge = branch.current_Signal.value
+        branch.current_Signal = None
+
+        # Step 2: Simulate the way from dendrite branch to dendrite
+        dendrite.charge = cable_function(None,
+                                         injected_charge,
+                                         dendrite.charge,
+                                         branch.space_constant,
+                                         branch.membrane_resistance,
+                                         branch.attenuation_factor,
+                                         branch.time_scaling_factor,)
+
+
+
     def process(self, incoming: float) -> Signal | None:
         # TODO: - Implement this
         # TODO: Should use the data contained in the NeuroTransmitter and process it
@@ -97,7 +149,7 @@ class Soma:
 
         if self.refractory_timer > 0:
             self.refractory_timer -= 1
-            # Still do the maths, but with don't fire
+            # Still do the maths, but don't fire
             return None
 
         else:
@@ -118,6 +170,7 @@ class Soma:
         self.mitochondrion.consume(TransmittersCost.STANDARD)
         transmitter_tuple: Tuple
         return transmitter_tuple[Transmitters, TransmittersCost]
+
 
     def fire(self):
         self.mitochondrion.consume(TransmittersCost.FIRE)

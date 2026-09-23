@@ -10,3 +10,4 @@ class TransmittersCost(IntEnum):
     NOREPINEPHRINE = 2
     ACETYLCHOLINE = 2
     FAILED_OPERATION = 1
+    TRANSPORT_INTERNALLY = 2

@@ -1,9 +1,13 @@
+import math
+
+from math import sqrt
 from numbers import Number
 from typing import List, Callable
 
 #from fundamentals import mitochondrion # Double import and shadow?? Wtf?
 from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.dendrite_branch import DendriteBranch
+from fundamentals.maths.CONSTANTS import DELTA_T
 from fundamentals.maths.activation_functions import ReLu, ActivationFunction
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.soma import Soma
@@ -45,12 +49,14 @@ class Dendrite:
             self,
             mitochondrion: Mitochondrion,
             related_soma: Soma,  # Needed for handing off the processed value to the soma
-            length: float = 1.0, # default value is 1.0
             local_threshold: float = -44, # mV Minimum local charge necessary for a local spike -> Soma | Should be around -52 to -41 mV
             baseline_charge: float = -70, # Determines the base charge, so current charge can also be reset to this | Should be around -75 to -60 mV
             branches= None, # All the branches of the dendrite
             activation_function: ActivationFunction = ReLu,# Activation Function passed so each dendrite can have its own
-            global_time = Time
+            global_time = Time,
+            width: int = 1.0,
+            length: int = 1.0,
+            membrane_resistance: float = 1.0,
 
     ):
         # Ensure branches are existent
@@ -131,6 +137,53 @@ class Dendrite:
         self.charge = charge
 
 
+        # Ensure length passes a type hint and is reasonable
+        if not isinstance(length, Number) or isinstance(length, bool):
+            raise TypeError("Length must be a number")
+        else:
+            length = int(length)
+
+        if length <= 0:
+            raise ValueError("Length must be greater than 0")
+
+        self.length = length
+
+
+        # Ensure width passes type hint and is reasonable
+        if not isinstance(width, Number) or isinstance(width, bool):
+            raise TypeError("Width must be a number")
+        else:
+            width = int(width)
+
+        if width <= 0:
+            raise ValueError("Width must be greater than 0")
+
+        self.width = width
+
+        if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
+            raise TypeError("Membrane resistance must be a number")
+        else:
+            membrane_resistance = float(membrane_resistance)
+
+        self.membrane_resistance = membrane_resistance
+
+        # Values for cable theory DO THIS WITH DNA LATER
+
+        self.internal_resistance = 10 / width
+
+        self.space_constant = sqrt(membrane_resistance / self.internal_resistance)
+
+        self.cable_area = width * length * math.pi
+
+        self.membrane_capacitance = 1.0 * self.cable_area
+
+        self.tau_membrane = self.membrane_capacitance * membrane_resistance
+
+        self.attenuation_factor = math.exp(-length / self.space_constant)
+
+        self.time_scaling_factor = (DELTA_T / self.tau_membrane)
+
+
     def create_and_add_branch(self, length: float, receptor_type: Transmitters, target_axon_terminal: AxonTerminal):
         """
         Creates a new dendritic branch and adds it to the list of branches. The new branch is initialised
@@ -159,63 +212,3 @@ class Dendrite:
         :return: None
         """
         self.branches.remove(branch)
-
-
-    def fire(self):
-
-        """
-
-        :return:
-        """
-
-        # Step 1: Check if firing is possible, by checking in on the mitochondrion
-        if self.mitochondrion.consume(TransmittersCost.FIRE):
-            if self.charge >= self.local_threshold:
-                # For now use difference between threshold and actual charge as signal value to hand off
-                self.related_soma.process(abs(self.local_threshold - self.charge))
-        else:
-            print("CANNOT FIRE: MITOCHONDRION IS EXHAUSTED")
-
-
-
-
-
-    def process_branches(self):
-        """
-        Applies the passed activation function to the values received by each dendrite branch.
-        This prepares the values for evaluation.
-        Also summarizes all the values held inside the dendrite branches' current signals, to the current charge.
-        If a branch's signal has been added to the charge of the dendrite, its reference is destroyed, so it can be collected by GC.
-        This also ensures that no Signal can be processed twice.
-
-
-        :return:
-        """
-        for branch in self.branches:
-
-            # Step 1: Add signals to the charge and apply non-linearity
-            self.charge += self.activation_function(branch.current_Signal.value)
-
-            # Step 1: Add signal value to charge in a loop
-            branch.current_Signal.value = self.activation_function(branch.current_Signal.value)
-
-            # Step 2: Add the processed signal value to the dendrite branch's charge level
-            self.charge += branch.current_Signal.value
-
-            # Step 3: Reduce the local Mitochondrion energy, be the amount of the Signal's NT
-            self.mitochondrion.consume(TransmittersCost(branch.current_NT.name))
-
-            # Step 4: Remove the reference to the signal object, so GC collects it
-            branch.current_Signal = None
-
-            #TODO: Add cable theory
-
-        # # Step 5: Outside of Loop, check if the charge is high enough after the processing
-        # if self.charge >= self.local_threshold:
-        #     self.charge = self.baseline_charge
-        #     return True
-        #
-        # return False
-
-        # Step 1 Add signal of each branch
-

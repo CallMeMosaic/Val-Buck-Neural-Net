@@ -3,6 +3,9 @@ Mathematical Constants needed for calculations such as cable theory or leaky fun
 
 """
 
-def MEMBRANE_CAPACITANCE()
+#def MEMBRANE_CAPACITANCE()
+
+
+DELTA_T = 0.2 # Time it takes for one timestep to finish fully (should be accurate, as it is the global time constant)
 
 

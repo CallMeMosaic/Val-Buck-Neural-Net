@@ -5,7 +5,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
     </content>
-    <orderEntry type="jdk" jdkName="~/IdeaProjects/Val-Buck-Neural-Net/.venv" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="uv (Val-Buck-Neural-Net) (2)" jdkType="Python SDK" />
     <orderEntry type="library" name="uv (Val-Buck-Neural-Net) interpreter library" level="application" />
     <orderEntry type="library" name="uv (Val-Buck-Neural-Net) (2) interpreter library" level="application" />
     <orderEntry type="library" name="uv (Spark) interpreter library" level="application" />

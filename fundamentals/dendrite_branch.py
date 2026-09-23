@@ -1,9 +1,13 @@
+import math
+
+from math import sqrt
 from numbers import Number
 from typing import Optional
 
 from errorhandling.neuron_exceptions import NeuronDNAError
 from fundamentals.Signal import Signal
 from fundamentals.axon_terminal import AxonTerminal
+from fundamentals.maths.CONSTANTS import DELTA_T
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.neuro_transmitter import NeuroTransmitter
 from fundamentals.neuron_dna import NeuronDNA
@@ -44,8 +48,9 @@ class DendriteBranch:
             mitochondrion: Mitochondrion, # The Powerhouse of each cell innit
             receptor_type: Transmitters,  # From transmitters enum
             branch_dna: NeuronDNA, # Ensures that the Branches cannot receive signals from neurons that use different Neuro Transmitters
-            length: float = 1.0, # default value is 1.0, needed for spatial decay calculation
-            width: float = 1.0, # default value is 1.0, needed for spatial decay calculation
+            length: int = 1, # default value is 1.0, needed for spatial decay calculation
+            width: int = 1, # default value is 1.0, needed for spatial decay calculation
+            membrane_resistance: float = 1.0,
             name: Optional[str] = None, # Optional name for easier debugging
     ):
         # Ensure current Signal follows type hints
@@ -79,11 +84,11 @@ class DendriteBranch:
         self.receptor_type = receptor_type
 
 
-        # Ensure length passes type hint and is reasonable
+        # Ensure length passes a type hint and is reasonable
         if not isinstance(length, Number) or isinstance(length, bool):
             raise TypeError("Length must be a number")
         else:
-            length = float(length)
+            length = int(length)
 
         if length <= 0:
             raise ValueError("Length must be greater than 0")
@@ -95,46 +100,35 @@ class DendriteBranch:
         if not isinstance(width, Number) or isinstance(width, bool):
             raise TypeError("Width must be a number")
         else:
-            width = float(width)
+            width = int(width)
 
         if width <= 0:
             raise ValueError("Width must be greater than 0")
 
         self.width = width
 
-
-
-    def receive_signal(self, acceptor: NeuroTransmitter, ) -> bool:
-        # Basically accepts a Neuro Transmitter object and reduces it to the signal object
-        """
-        Primary function of this class.
-        Accepts a NeuroTransmitter object and deletes the NeuroTransmitter and only keeps the Signal object carried by it.
-        1. Checks first if its Mitochondrion can handle the current action, if not, the Neurotransmitter will be rejected and destroyed by the Synapse.
-        2. Checks if the Transmitter Types match, if not, it refuses but still has depleted energy.
-        3. Applies cable theory to the signal for the traveled distance.
-        4. Saves a Signal object and returns the state of the operation.
-
-
-        :param acceptor: NeuroTransmitter object = The NeuroTransmitter passed on by the synapse.
-        :return: Boolean = True if Signal was accepted, False if not.
-        """
-
-
-        if self.mitochondrion.consume(acceptor.cost):
-
-            if acceptor.nt_type == self.receptor_type:
-
-
-
-            else:
-                return False
-
+        if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
+            raise TypeError("Membrane resistance must be a number")
         else:
-            return False
+            membrane_resistance = float(membrane_resistance)
 
-        self.current_Signal = acceptor.signal
+        self.membrane_resistance = membrane_resistance
+
+        # Values for cable theory DO THIS WITH DNA LATER
+
+        self.internal_resistance = 10 / width
+
+        self.space_constant = sqrt(membrane_resistance / self.internal_resistance)
+
+        self.cable_area = width * length * math.pi
+
+        self.membrane_capacitance = 1.0 * self.cable_area
+
+        self.tau_membrane = self.membrane_capacitance * membrane_resistance
+
+        self.attenuation_factor = math.exp(-length / self.space_constant)
+
+        self.time_scaling_factor = (DELTA_T / self.tau_membrane)
 
 
 
-        #TODO: Make sure NT object is handled correctly here
-        #TODO: Add cable theory
