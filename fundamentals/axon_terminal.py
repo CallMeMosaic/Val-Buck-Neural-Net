@@ -137,9 +137,10 @@ class AxonTerminal:
             raise ValueError(f"Invalid effector type: {effector_type}")
         self.effector_type = effector_type
 
-        if parent_axon is None or parent_axon is not Axon:
-            raise ValueError("Parent axon must be object of type Axon!")
-        self.parent_axon = parent_axon
+    def synthesize(self, value: float) -> NeuroTransmitter:
+        """
+        Method to synthesize a new neurotransmitter object.
+        Takes the value of the signal from outside (soma process method) and integrates it into a new signal object nested inside a neuro transmitter object.
 
         if linked_dendrite_branch is None or linked_dendrite_branch is not DendriteBranch:
             raise ValueError("Linked dendrite branch must be object of type DendriteBranch!")
