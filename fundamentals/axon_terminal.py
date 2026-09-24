@@ -32,6 +32,95 @@ class AxonTerminal:
     :since: 0.0.1
     :version: 0.0.1
     """
+
+
+    def __init__(self,
+                 mitochondrion: Mitochondrion,
+                 synthesis_type: Transmitters,
+                 length: int = 1,
+                 width: int = 1,
+                 membrane_resistance: float = 1.0):
+
+
+        # Ensure the Mitochondrion is not none or not of type mitochondrion
+
+        if not isinstance(mitochondrion,Mitochondrion) or mitochondrion is None:
+            raise TypeError("Mitochondrion must be instance of type Mitochondrion!")
+
+        self.mitochondrion = mitochondrion
+
+
+        # Ensure Synthesis Type is according to Type Hint
+
+        if not isinstance(synthesis_type, Transmitters):
+            raise TypeError("Synthesis Type must be value of Transmitters enum!")
+
+        self.synthesis_type = synthesis_type
+
+
+        # Ensure the length is greater than 0 and is according to type hint.
+
+        if length is not None:
+            if not isinstance(length, Number) or isinstance(length, bool):
+                raise TypeError("Length must be of type Number!")
+            else:
+                if length <= 0:
+                    raise ValueError("Length must be greater than 0!")
+                length = int(length)
+        else:
+            raise ValueError("Length cannot be None!")
+
+        self.length = length
+
+        # Ensure Width is according to Type Hints
+
+        if width is not None:
+            if not isinstance(width, Number) or isinstance(width, bool):
+                raise TypeError("Width must be of type Number!")
+            else:
+                if width <= 0:
+                    raise ValueError("Width must be greater than 0!")
+                width = int(width)
+        else:
+            raise ValueError("Width cannot be None!")
+
+        self.width = width
+
+
+        # Ensure Membrane Resistance is according to Type Hints
+
+        if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
+            raise TypeError("Membrane resistance must be a number")
+        else:
+            membrane_resistance = float(membrane_resistance)
+
+        self.membrane_resistance = membrane_resistance
+
+
+        # Create Terminal Queue
+
+        self.terminal_queue = []
+
+
+        # Values for cable Theory DO THIS WITH DNA LATER
+
+        self.internal_resistance = 10 / width
+
+        self.space_constant = sqrt(membrane_resistance / self.internal_resistance)
+
+        self.cable_area = width * length * math.pi
+
+        self.membrane_capacitance = 1.0 * self.cable_area # Sure that taking it times one makes sense?
+
+        self.tau_membrane = self.membrane_capacitance * self.internal_resistance
+
+        self.attenuation_factor = math.exp(-length / self.space_constant)
+
+        self.time_scaling_factor = (DELTA_T / self.tau_membrane)
+
+
+
+    """
     def __init__(
             self,
             parent_axon: Axon,  # Linked parent axon, important for checking the type of NTs and using its methods
