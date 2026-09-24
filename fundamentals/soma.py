@@ -280,6 +280,66 @@ class Soma:
         # TODO: ADD CABLE THEORY
         # TODO: NEEDS TO CHECK MEMBRANE CHARGE AND THRESHOLD TO FIRE
 
+        soma_prior_charge = self.current_charge
+        soma_injected_charge = 0.0
+
+        for den in self.dendrites:  # Run dendrite_process() for all attached dendrites
+            self.dendrite_process(self, den)
+            # If dendrite branches have no incoming signal, nothing happens
+            # If dendrite has not reached threshold, only leak is applied per dendrite
+            # TODO: NOTE COMPUTATION CONSUMPTION
+
+        # Calculate the charge injected into the soma from the dendrites
+        if not soma_prior_charge == self.current_charge:
+            soma_injected_charge = soma_prior_charge - self.current_charge
+        else:
+            soma_injected_charge = 0.0
+
+        # Apply leak to Soma Charge before continuing processing
+
+        self.current_charge = lif_model(self.leak_factor,
+                                        soma_injected_charge,
+                                        soma_prior_charge)
+
+        # Check if the refractory period is active
+
+        if self.refractory_period > 0:
+            self.refractory_period -= 1
+            return None
+
+        # Check if soma activation potential (threshold) is reached
+
+        if self.current_charge >= self.threshold:
+
+            # Check if mitochondrion can afford signal propagation
+
+            if not self.mitochondrion.consume(TransmittersCost.FIRE):
+                return None
+
+        # After Mitochondrion and Potential have been checked, propagate signal to axon
+
+        self.axon.current_charge = cable_function(soma_injected_charge,
+                                                  self.current_charge,
+                                                  self.axon.current_charge,
+                                                  self.axon.space_constant,
+                                                  self.axon.membrane_resistance,
+                                                  self.axon.attenuation_factor,
+                                                  self.axon.time_scaling_factor)
+
+        # Propagate signal further to each Axon Terminal, also check each terminal if their mitochondrion can afford synthezising a new Neuro Transmitter
+
+        if self.axon.axon_terminals is not None:
+            for at in self.axon.axon_terminals:
+                if at.mitochondrion.consume(TransmittersCost(self.nucleus.dna.allowed_syntheses.value.capitalize())): #Takes the allowed transmitter from the dna, puts it inside the TransmittersCost enum and uses the capitalized string as key.
+
+                else:
+                    # ADD TO QUEUE
+
+
+
+
+                    # OLD CODE
+
         if not self.mitochondrion.consume():
             self.is_exhausted = True
             return None
