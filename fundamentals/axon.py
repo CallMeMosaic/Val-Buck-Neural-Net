@@ -66,12 +66,6 @@ class Axon:
 
         # Check if the transmitter can be synthesised
 
-        if not self.nucleus.dna.can_synthesise(transmitter):
-            raise ValueError(f"Transmitter {transmitter} cannot be synthesized")
-        if self.mitochondrion.consume(cost):
-            return NeuroTransmitter(transmitter,cost, signal)
-        else:
-            return None
 
     def create_and_add_terminal(self, affector_type: Transmitters, linked_dendrite_branch: DendriteBranch,
                                 length: float):
