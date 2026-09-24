@@ -1,5 +1,6 @@
 from numbers import Number
 
+from fundamentals import transmitters
 from fundamentals.control.time import Time
 from fundamentals.neuro_transmitter import NeuroTransmitter
 from fundamentals.transmitters import Transmitters
@@ -29,37 +30,24 @@ class NeuronDNA:
     :since: 0.0.1
     :version: 0.0.1
     """
+
+    #TODO: OPTZIMIZE THIS ESPECIALLY WITH TYPING AND DESIGN
     def __init__(
             self,
-            allowed_receptors: tuple[Transmitters], # Determines which Transmitters the neuron can receive
-            allowed_syntheses: tuple[Transmitters],# Determines which Transmitters the neuron can synthesize
+            allowed_receptors: Transmitters, # Determines which Transmitters the neuron can receive
+            allowed_syntheses: Transmitters,# Determines which Transmitters the neuron can synthesize
             signal_frequency: float, # Determines the frequency of the neuron's signal
             global_time: Time, # References the internal clock so that each neuron can access it in every method without needing parameters for it.
     ):
         # Check if allowed_receptors is according to type hint
-        if not isinstance(allowed_receptors,tuple):
-            raise ValueError("Allowed receptors needs to be a tuple")
+        if not isinstance(allowed_receptors,Transmitters):
+            raise ValueError("Allowed receptors needs part of Transmitters enum")
 
-        if len(allowed_receptors) == 0:
-            raise ValueError("Allowed receptors cannot be empty")
 
-        for transmitter in allowed_receptors:
-            if not isinstance(transmitter,Transmitters):
-                raise ValueError("Allowed receptors need to be instances of Transmitters")
+        if not isinstance(allowed_syntheses,Transmitters):
+            raise ValueError("Allowed synthesis needs to be part of Tranmitters enum")
 
         self.allowed_receptors = allowed_receptors
-
-
-        # Check if allowed_syntheses is according to type hint
-        if not isinstance(allowed_syntheses,tuple):
-            raise ValueError("Allowed synthesis needs to be a tuple")
-
-        if len(allowed_syntheses) == 0:
-            raise ValueError("Allowed syntheses cannot be empty")
-
-        for transmitter in allowed_syntheses:
-            if not isinstance(transmitter,Transmitters):
-                raise ValueError("Allowed syntheses need to be instances of Transmitters")
 
         self.allowed_syntheses = allowed_syntheses
 
@@ -79,7 +67,7 @@ class NeuronDNA:
 
         # Type Check for global_time
         if not isinstance(global_time, Time):
-            raise ValueError("Global time needs to be an instance of Time!")
+            raise TypeError("Global time needs to be an instance of Time!")
 
         self.global_time = global_time
 

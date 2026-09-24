@@ -1,19 +1,14 @@
 import math
-
 from math import sqrt
 from numbers import Number
 from typing import List, Callable
 
-#from fundamentals import mitochondrion # Double import and shadow?? Wtf?
-from fundamentals.axon_terminal import AxonTerminal
+from fundamentals.control.time import Time
 from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.maths.CONSTANTS import DELTA_T
 from fundamentals.maths.activation_functions import ReLu, ActivationFunction
 from fundamentals.mitochondrion import Mitochondrion
-from fundamentals.soma import Soma
 from fundamentals.transmitters import Transmitters
-from fundamentals.transmitters_cost import TransmittersCost
-from fundamentals.control.time import Time
 
 
 #TODO: - Dendritic pre-processing
@@ -43,7 +38,7 @@ class Dendrite:
 
     :author: CallMeMosaic
     :since: 0.0.1
-    :version: 0.0.3
+    :version: 0.0.4
     """
 
     # TODO: DOCSTRING EDIT
@@ -54,10 +49,10 @@ class Dendrite:
             local_threshold: float = -44, # mV Minimum local charge necessary for a local spike -> Soma | Should be around -52 to -41 mV
             baseline_charge: float = -70, # Determines the base charge, so current charge can also be reset to this | Should be around -75 to -60 mV
             branches= None, # All the branches of the dendrite
-            activation_function: ActivationFunction = ReLu,# Activation Function passed so each dendrite can have its own
+            #activation_function: ActivationFunction = ReLu,# Activation Function passed so each dendrite can have its own
             global_time = Time,
-            width: int = 1.0,
-            length: int = 1.0,
+            width: int = 1,
+            length: int = 1,
             membrane_resistance: float = 1.0,
 
     ):
@@ -143,17 +138,11 @@ class Dendrite:
 
         # Ensure activation function is callable
 
-        if not isinstance(activation_function, ActivationFunction):
-            raise TypeError("Activation function must be of type ActivationFunction!")
+        #if not isinstance(activation_function, ActivationFunction):
+            #raise TypeError("Activation function must be of type ActivationFunction!")
 
-        self.activation_function: Callable
-        self.activation_function = activation_function.calculate
-
-
-        # Add charge to dendrite
-
-        charge: float = baseline_charge
-        self.charge = charge
+        #self.activation_function: Callable
+        #self.activation_function = activation_function.calculate
 
 
         if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
@@ -163,7 +152,15 @@ class Dendrite:
 
         self.membrane_resistance = membrane_resistance
 
+
+        # Add charge to dendrite
+
+        charge: float = baseline_charge
+        self.charge = charge
+
+
         # Values for cable theory DO THIS WITH DNA LATER
+
 
         self.internal_resistance = 10 / width
 

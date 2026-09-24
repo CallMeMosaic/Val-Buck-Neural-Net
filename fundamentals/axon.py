@@ -1,8 +1,12 @@
+import math
+from math import sqrt
+from numbers import Number
 from typing import List
 
 from fundamentals.Signal import Signal
 from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.dendrite_branch import DendriteBranch
+from fundamentals.maths.CONSTANTS import DELTA_T
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.neuro_transmitter import NeuroTransmitter
 from fundamentals.nucleus import Nucleus
@@ -12,59 +16,123 @@ from fundamentals.transmitters_cost import TransmittersCost
 
 class Axon:
     """
-    Represents an axon, a key structure of a neuron responsible for
-    transmitting information to other neurons through axon terminals.
+    Represents the axon of the neuron, responsible for transmitting the action potential of the soma to the exon terminals.
+    Mostly needed for applying cable theory function inside the soma, to simulate the action potential propagation.
 
-    The Axon class manages the key biological components necessary for
-    synaptic neurotransmitter synthesis and axon terminal operations.
+    :param current_charge: Float: Current charge of the axon. Is set to 0 by default.
+    :param width: Int: Width of the axon. The default value is 1.
+    :param length: Int: Length of the axon. The default value is 1.
+    :param membrane_resistance: Float: Membrane resistance of the axon. Is set to 1.0 by default as it does not affect the cable theory equations.
+    :param axon_terminals: List[AxonTerminal]: List of axon terminals connected to the axon.
 
-    :ivar nucleus: The nucleus associated with the axon is responsible for
-        controlling its operations and synthesizing neurotransmitters.
-    :type nucleus: Nucleus
-    :ivar mitochondrion: The mitochondrion associated with the axon
-        providing energy for neurotransmitter synthesis and other activities.
-    :type mitochondrion: Mitochondrion
-    :ivar axon_terminals: A list of attached axon terminals for transmitting
-        signals to other neurons.
-    :type axon_terminals: List[AxonTerminal]
+    Late-Initialized Properties:
+    :property internal_resistance: Float: Internal resistance of the axon to charge dissipating.
+    :property space_constant: Float: The square root of the membrane resistance divided by the axon's internal resistance. Indicates how much percentage of charge dissipates over one length unit.
+    :property cable_area: Float: The surface area of the axon. It is calculated as the product of the axon's width and length.
+    :property membrane_capacitance: Float: How much the membrane stores/absorbs charge over the length of the axon.
+    :property tau_membrane: Float: The time constant of the membrane, calculated as the product of the membrane resistance and membrane capacitance.
+    :property attenuation_factor: Float:
+    :property time_scaling_factor: Float:
+
 
     :author: CallMeMosaic
     :since: 0.0.1
-    :version: 0.0.1
+    :version: 0.0.2
+
+
+    Changelog:
+    - 0.0.2: Fully reworked the axon class to include all necessary parameters for the maths and calculations.
+             Also added proper documentation and proper type hints and type enforcement.
     """
+#TODO: YEAH WE SHOULD DO SOMETHING HERE RIGHT?
+
 
     def __init__(self,
-                 nucleus: Nucleus,
-                 mitochondrion: Mitochondrion
-
+                 current_charge: float = 0,
+                 width: int = 1,
+                 length: int = 1,
+                 membrane_resistance: float = 1.0,
+                 axon_terminals: list[AxonTerminal] = None,
                  ):
-        if nucleus is None:
-            raise ValueError("Nucleus cannot be None")
-        self.nucleus = nucleus
-
-        if mitochondrion is None:
-            raise ValueError("Mitochondrion cannot be None")
-        self.mitochondrion = mitochondrion
-
-        # List of axon terminals
-        self.axon_terminals: List[AxonTerminal] = []
 
 
-    def synthesize(self,transmitter: Transmitters, cost: TransmittersCost, signal: Signal) -> NeuroTransmitter | None:
-        """
-        Synthesise a neurotransmitter based on the given transmitter, its cost, and the signal to
-        create. This process checks if the DNA within the nucleus allows synthesising the provided
-        transmitter. If allowed, it verifies whether the mitochondrion can produce sufficient energy
-        to create the neurotransmitter. Upon successful synthesis, a `NeuroTransmitter` object is
-        created and returned; otherwise, it returns None.
+        # Ensure current charge is according to type hints
 
-        :param transmitter: The transmitter to be synthesised.
-        :param cost: The energy cost associated with synthesising the transmitter.
-        :param signal: The signal associated with this neurotransmitter.
-        :return: A `NeuroTransmitter` object if synthesis is successful, None otherwise.
-        """
+        if not isinstance(current_charge, Number) or isinstance(current_charge, bool):
+            raise TypeError("Current Charge of Axon needs to be instance of class Number and not bool")
 
-        # Check if the transmitter can be synthesised
+        if current_charge > 0:
+            raise ValueError("Current Charge of Axon needs to be non-positive")
+
+        self.current_charge = int(current_charge)
+
+
+        # Ensure width is according to type hints
+
+        if not isinstance(width, Number) or isinstance(width, bool):
+            raise TypeError("Width of Axon needs to be instance of class Number and not bool")
+
+        if width <= 0:
+            raise ValueError("Width of Axon needs to be greater than 0")
+
+        self.width = int(width)
+
+
+        # Ensure length is according to type hints
+
+        if not isinstance(length, Number) or isinstance(length, bool):
+            raise TypeError("Length of Axon needs to be instance of class Number and not bool")
+
+        if length <= 0:
+            raise ValueError("Length of Axon needs to be greater than 0")
+
+        self.length = int(length)
+
+
+        # Ensure Membrane Resistance is according to type hints
+
+        if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
+            raise TypeError("Membrane Resistance needs to be instance of class Number and not bool")
+
+        if membrane_resistance <= 0:
+            raise ValueError("Membrane Resistance needs to be greater than 0")
+
+        self.membrane_resistance = int(membrane_resistance)
+
+
+        # Ensure Axon Terminals are according to type hint
+
+        if not isinstance(axon_terminals, list):
+            raise TypeError("Axon Terminals needs to be instance of clas List")
+
+        for at in axon_terminals:
+            if not isinstance(at, AxonTerminal):
+                raise TypeError("Axon Terminals inside Axon Terminal list need to be instances of class AxonTerminal")
+
+        self.axon_terminals = axon_terminals
+
+
+        # Values for cable Theory DO THIS WITH DNA LATER
+
+        self.internal_resistance = 10 / width
+
+        self.space_constant = sqrt(membrane_resistance / self.internal_resistance)
+
+        self.cable_area = width * length * math.pi
+
+        self.membrane_capacitance = 1.0 * self.cable_area # Sure that taking it times one makes sense?
+
+        self.tau_membrane = self.membrane_capacitance * self.internal_resistance
+
+        self.attenuation_factor = math.exp(-length / self.space_constant)
+
+        self.time_scaling_factor = (DELTA_T / self.tau_membrane)
+
+
+
+    """
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+    """
 
 
     def create_and_add_terminal(self, affector_type: Transmitters, linked_dendrite_branch: DendriteBranch,

@@ -6,10 +6,8 @@ from typing import Optional
 
 from errorhandling.neuron_exceptions import NeuronDNAError
 from fundamentals.Signal import Signal
-from fundamentals.axon_terminal import AxonTerminal
 from fundamentals.maths.CONSTANTS import DELTA_T
 from fundamentals.mitochondrion import Mitochondrion
-from fundamentals.neuro_transmitter import NeuroTransmitter
 from fundamentals.neuron_dna import NeuronDNA
 from fundamentals.transmitters import Transmitters
 
@@ -42,6 +40,8 @@ class DendriteBranch:
                  Added width parameter for spatial decay calculation.
                  Added Mitochondrion parameter for energy consumption.
     """
+
+    # TODO: ADD LINKED SYNAPSE!!!
     def __init__(
             self,
             current_signal: Signal | None,
@@ -129,6 +129,9 @@ class DendriteBranch:
         self.attenuation_factor = math.exp(-length / self.space_constant)
 
         self.time_scaling_factor = (DELTA_T / self.tau_membrane)
+
+
+        #TODO:
 
 
 

@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 
 from fundamentals.Signal import Signal
+from fundamentals.transmitters import Transmitters
 from fundamentals.transmitters_cost import TransmittersCost
-from transmitters import Transmitters
+
 
 @dataclass
 class NeuroTransmitter:
@@ -19,11 +20,12 @@ class NeuroTransmitter:
     :version: 0.0.1
 
     """
+
     def __init__(
-        self,
-        nt_type: Transmitters,
-        cost: TransmittersCost,
-        signal: Signal
+            self,
+            nt_type: Transmitters,
+            cost: TransmittersCost,
+            signal: Signal
 
     ):
         self.nt_type = nt_type

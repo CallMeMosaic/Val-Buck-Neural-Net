@@ -1,13 +1,11 @@
 from numbers import Number
 from typing import Optional, Tuple
 
-from numpy.f2py.symbolic import Op
-
-from fundamentals import dendrite
 from fundamentals.Signal import Signal
 from fundamentals.axon import Axon
 from fundamentals.dendrite import Dendrite
 from fundamentals.dendrite_branch import DendriteBranch
+from fundamentals.maths.CONSTANTS import SOMA_LEAK_FACTOR
 from fundamentals.maths.decay_function import cable_function
 from fundamentals.maths.lif_model import lif_model
 from fundamentals.mitochondrion import Mitochondrion
@@ -46,21 +44,26 @@ class Soma:
 
     :author: CallMeMosaic
     :since: 0.0.1
-    :version: 0.0.1
+    :version: 0.0.2
     """
 
-    #TODO: DOCSTING EDIT AND NEW VERSION
-
+    # TODO: DOCSTING EDIT AND NEW VERSION
 
     def __init__(self,
-                 nucleus: Nucleus, # The Cells Nucleus, containing the DNA of the cell and housing (FUTURE UPDATE) methods to manage the cells' DNA
-                 mitochondrion:Mitochondrion, # The Cells Mitochondrion, necessary for energy management of the soma.
-                 axon: Axon, # The axon connected to the soma, necessary for delivering signals to other neurons.
-                 dendrites: list[Dendrite], # A list of all dendrites connected to the soma, necessary for receiving signals from other neurons.
-                 baseline_charge: float = -50.0, # mV This is the resting potential of the Soma, the charge paramter will always be reset to this value after firing.
-                 threshold: float = -50.0, # mV This is the action potential threshold of the Soma, if the charge exceeds/meets this value, the Soma will fire.
-                 refractory_period: int = 5, # The refractory period of the Soma, the time it takes for the Soma to recover from firing.
-                 fired_stat: bool = False, # A boolean indicating whether the Soma has fired in the previous timestep, gets reset after the refractory period is over.
+                 nucleus: Nucleus,
+                 # The Cells Nucleus, containing the DNA of the cell and housing (FUTURE UPDATE) methods to manage the cells' DNA
+                 mitochondrion: Mitochondrion,  # The Cells Mitochondrion, necessary for energy management of the soma.
+                 axon: Axon,  # The axon connected to the soma, necessary for delivering signals to other neurons.
+                 dendrites: list[Dendrite],
+                 # A list of all dendrites connected to the soma, necessary for receiving signals from other neurons.
+                 baseline_charge: float = -50.0,
+                 # mV This is the resting potential of the Soma, the charge paramter will always be reset to this value after firing.
+                 threshold: float = -50.0,
+                 # mV This is the action potential threshold of the Soma, if the charge exceeds/meets this value, the Soma will fire.
+                 refractory_period: int = 5,
+                 # The refractory period of the Soma, the time it takes for the Soma to recover from firing.
+                 fired_stat: bool = False,
+                 # A boolean indicating whether the Soma has fired in the previous timestep, gets reset after the refractory period is over.
                  name: Optional[str] = None
                  ):
 
@@ -70,7 +73,6 @@ class Soma:
             raise TypeError("Nucleus must be instance of class Nucleus")
 
         self.nucleus = nucleus
-
 
         # Ensure Typing for Mitochondrion is according to the type hints
 
@@ -91,12 +93,11 @@ class Soma:
         if not isinstance(dendrites, list) or dendrites is None:
             raise TypeError("Dendrites must be instance of class list")
 
-        for dendrite in dendrites:
-            if not isinstance(dendrite, Dendrite) or dendrite is None:
+        for d in dendrites:
+            if not isinstance(d, Dendrite) or d is None:
                 raise TypeError("Dendrite objects within Dendrites must be instance of class Dendrite")
 
         self.dendrites = dendrites
-
 
         # Ensure Typing for Baseline Charge is according to the type hints
 
@@ -117,11 +118,9 @@ class Soma:
 
         self.baseline_charge = baseline_charge
 
-
         # Create current Charge from baseline charge
 
         self.current_charge = self.baseline_charge
-
 
         # Ensure Typing for Threshold is according to the type hints
 
@@ -142,7 +141,6 @@ class Soma:
 
         self.threshold = threshold
 
-
         # Ensure the Refractory Period is according to the type hints
 
         if refractory_period is not None:
@@ -162,7 +160,6 @@ class Soma:
 
         self.refractory_period = refractory_period
 
-
         # Ensure the Fired Stat is according to the type hints
 
         if not isinstance(fired_stat, bool) or fired_stat is None:
@@ -170,12 +167,15 @@ class Soma:
 
         self.fired_stat = fired_stat
 
+        # Mathematics
+        self.leak_factor = SOMA_LEAK_FACTOR
+
         # TEMP THING FOR NAME
         self.name = name
 
-
-
-
+    """
+    —————————————————————————————————————————————————————————————————————————————————————————————————————————————
+    """
 
     def branch_process(self, branch: DendriteBranch, dendrite: Dendrite):
         """
@@ -195,14 +195,14 @@ class Soma:
         :return:
         """
 
-        #TODO: O-NOTATION
-        #TODO: DOCSTRING EDIT
+        # TODO: O-NOTATION
+        # TODO: DOCSTRING EDIT
 
         # Step 0: Check if the Mitochondrion of the Branch can handle the current action and if there is a signal to process
         if not branch.mitochondrion.consume(TransmittersCost.TRANSPORT_INTERNALLY):
             return
 
-        if branch.current_signal is None: # Ensures branches are only processed if there is a signal to process to save computation
+        if branch.current_signal is None:  # Ensures branches are only processed if there is a signal to process to save computation
             injected_charge = 0
 
         else:
@@ -210,70 +210,62 @@ class Soma:
             injected_charge = branch.current_signal.value
             branch.current_signal = None
 
-
             # Step 2: Simulate the way from dendrite branch to dendrite
             dendrite.charge = cable_function(None,
-                                            injected_charge,
-                                            dendrite.charge,
-                                            branch.space_constant,
-                                            branch.membrane_resistance,
-                                            branch.attenuation_factor,
-                                            branch.time_scaling_factor,)
+                                             injected_charge,
+                                             dendrite.charge,
+                                             branch.space_constant,
+                                             branch.membrane_resistance,
+                                             branch.attenuation_factor,
+                                             branch.time_scaling_factor)
 
+    """
+    —————————————————————————————————————————————————————————————————————————————————————————————————————————————
+    """
 
+    def dendrite_process(self, den: Dendrite):
+        # TODO: DOCSTRING
+        # TODO: O-NOTATION AND CALCULATION COMPLEXITY
 
+        if isinstance(den, Dendrite):
 
-    def dendrite_process(self,dendrite: Dendrite):
-        #TODO: DOCSTRING
-        #TODO: O-NOTATION AND CALCULATION COMPLEXITY
+            dendrite_prior_charge = den.charge
+            dendrite_injected_charge = 0
 
+            for branch in den.branches:
+                self.branch_process(branch, den)
+                # Checks branch, if no signal at branch, nothing happens
+                # If branch mitochondria cannot accommodate the internal transport of a charge, nothing happens
 
-        dendrite_prior_charge = dendrite.charge
-        dendrite_injected_charge = 0
+            # Calculate the charge that all the branches have injected into the dendrite
 
-        for branch in dendrite.branches:
+            if not dendrite_prior_charge == den.charge:
+                dendrite_injected_charge = dendrite_prior_charge - den.charge  # FLOPS: 1
 
-            self.branch_process(branch,dendrite)
-            # Checks branch, if no signal at branch, nothing happens
-            # If branch mitochodrium cannot accomodate the internal transport of a charge, nothing happens
+            # Apply leaky function before firing, so that it is always applied and can possibly prevent a fire
+            den.charge = lif_model(den.leak_factor,
+                                   dendrite_injected_charge,
+                                   dendrite_prior_charge)
 
+            # Check if the dendrite has reached its local threshold
+            if den.charge >= den.local_threshold:
 
-        # Calculate the charge that all the branches have injected into the dendrite
+                # Validate that can be fired
+                if den.mitochondrion.consume(TransmittersCost.FIRE):
+                    # Run the cable function to pass the charge from the dendrite to the soma
+                    self.current_charge = cable_function(den.charge,
+                                                         den.baseline_charge,
+                                                         self.current_charge,
+                                                         den.space_constant,
+                                                         den.membrane_resistance,
+                                                         den.attenuation_factor,
+                                                         den.time_scaling_factor)
 
-        if not dendrite_prior_charge == dendrite.charge:
-            dendrite_injected_charge = dendrite_prior_charge - dendrite.charge
+    """
+    —————————————————————————————————————————————————————————————————————————————————————————————————————————————
+    """
 
-
-        # Apply leaky function before firing, so that it is always applied and can possibly prevent a fire
-        dendrite.charge = lif_model(dendrite.leak_factor,
-                                    dendrite.injected_charge,
-                                    dendrite_prior_charge)
-
-        # Check if the dendrite has reached its local threshold
-        if dendrite.charge >= dendrite.local_threshold:
-
-            # Validate that can be fired
-            if dendrite.mitochondrion.consume(TransmittersCost.FIRE):
-
-                # Run the cable function to pass the charge from the dendrite to the soma
-                self.current_charge = cable_function(dendrite.charge,
-                                                    dendrite.baseline_charge,
-                                                    self.current_charge,
-                                                    dendrite.space_constant,
-                                                    dendrite.membrane_resistance,
-                                                    dendrite.attenuation_factor,
-                                                    dendrite.time_scaling_factor)
-
-
-
-
-
-
-
-
-
-
-    def process(self, incoming: float) -> Signal | None:
+    def process(self) -> Signal | None:
         # TODO: - Implement this
         # TODO: Should use the data contained in the NeuroTransmitter and process it
         # TODO: RUN CHECK UP ON MITOCHONDRION
@@ -330,6 +322,8 @@ class Soma:
 
         if self.axon.axon_terminals is not None:
             for at in self.axon.axon_terminals:
+                # CABLE FUNCTION HERE!
+
                 if at.mitochondrion.consume(TransmittersCost(self.nucleus.dna.allowed_syntheses.value.capitalize())): #Takes the allowed transmitter from the dna, puts it inside the TransmittersCost enum and uses the capitalized string as key.
 
                 else:
@@ -358,6 +352,10 @@ class Soma:
                 # Save the signal for later?
                 return None
 
+        """
+        ——————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        """
+
     def assign_transmitter(self, signal: Signal) -> Tuple[Transmitters, TransmittersCost]:
         # TODO: - Implement this
         # TODO: Should use the Signal returned from the process method to assign a transmitter and return said transmitter
@@ -367,7 +365,6 @@ class Soma:
         self.mitochondrion.consume(TransmittersCost.STANDARD)
         transmitter_tuple: Tuple
         return transmitter_tuple[Transmitters, TransmittersCost]
-
 
     def fire(self):
         self.mitochondrion.consume(TransmittersCost.FIRE)
