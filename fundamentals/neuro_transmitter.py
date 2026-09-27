@@ -30,4 +30,6 @@ class NeuroTransmitter:
     ):
         self.nt_type = nt_type
         self.cost = cost
+        if not isinstance(signal, Signal) or signal is None:
+            raise ValueError("Signal needs to be of type Signal and cannot be None")
         self.signal = signal

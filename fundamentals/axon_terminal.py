@@ -115,7 +115,7 @@ class AxonTerminal:
 
         # Create Terminal Queue
 
-        self.terminal_queue = []
+        self.terminal_queue = float
 
         # Values for cable Theory DO THIS WITH DNA LATER
 
@@ -151,8 +151,4 @@ class AxonTerminal:
                                 Signal(value))
 
 
-    """
-    ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-    """
 
-    def process_queue

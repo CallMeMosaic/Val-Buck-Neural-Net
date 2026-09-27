@@ -8,8 +8,10 @@ Mathematical Constants needed for calculations such as cable theory or leaky fun
 
 DELTA_T = 0.2 # Time it takes for one timestep to finish fully (should be accurate, as it is the global time constant)
 
-SOMA_TAU_MEMBRANE = 1727875.9594743862 # Derived from putting soma values in a dendrite and taking it tau_membrane: Values were: -52 Threshold, -70 Resting Potential, 5 Width, 5 Length, 22k Membrane Resistence (As according to google)
+SOMA_TAU_MEMBRANE = 1727875.9594743862 # Derived from putting soma values in a dendrite and taking its tau_membrane: Values were: -52 Threshold, -70 Resting Potential, 5 Width, 5 Length, 22k Membrane Resistence (As according to google)
 SOMA_LEAK_FACTOR = DELTA_T / SOMA_TAU_MEMBRANE
+SYNAPSE_TAU_MEMBRANE = 1979203.3717615698 # Derived from putting cylindrical values into a dendrite and taking its tau_membrane: Values were: -52 Threshold, -60 Resting Potential, 3 Width, 7 Length, 30k Membrane Resistence
+SYNAPSE_OVERCHARGE_THRESHOLD = -320 # mV The threshold a synapse has to reach for it to declare itself overcharged and likely useless. Therefore resulting in it's deletion.
 
 
 

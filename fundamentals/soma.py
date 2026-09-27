@@ -60,8 +60,6 @@ class Soma:
                  # mV This is the resting potential of the Soma, the charge paramter will always be reset to this value after firing.
                  threshold: float = -50.0,
                  # mV This is the action potential threshold of the Soma, if the charge exceeds/meets this value, the Soma will fire.
-                 refractory_period: int = 5,
-                 # The refractory period of the Soma, the time it takes for the Soma to recover from firing.
                  fired_stat: bool = False,
                  # A boolean indicating whether the Soma has fired in the previous timestep, gets reset after the refractory period is over.
                  name: Optional[str] = None
@@ -141,24 +139,6 @@ class Soma:
 
         self.threshold = threshold
 
-        # Ensure the Refractory Period is according to the type hints
-
-        if refractory_period is not None:
-
-            if not isinstance(refractory_period, Number) or isinstance(refractory_period, bool):
-                raise TypeError("Refractory Period must be instance of class Number and not bool")
-
-            else:
-
-                if refractory_period <= 0:
-                    raise ValueError("Refractory Period must be greater than 0")
-
-                refractory_period = int(refractory_period)
-
-        else:
-            raise TypeError("Refractory Period cannot be None")
-
-        self.refractory_period = refractory_period
 
         # Ensure the Fired Stat is according to the type hints
 
@@ -167,11 +147,16 @@ class Soma:
 
         self.fired_stat = fired_stat
 
+        self.refractory_period = 0 # The refractory period of the Soma,
+        # the time it takes for the Soma to recover from firing.
+        # Not a Parameter as that would mean each Neuron has initial downtime, which means the first x ticks will do nothing at all.
+
         # Mathematics
         self.leak_factor = SOMA_LEAK_FACTOR
 
         # TEMP THING FOR NAME
         self.name = name
+
 
     """
     —————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -210,14 +195,14 @@ class Soma:
             injected_charge = branch.current_signal.value
             branch.current_signal = None
 
-            # Step 2: Simulate the way from dendrite branch to dendrite
-            dendrite.charge = cable_function(None,
-                                             injected_charge,
-                                             dendrite.charge,
-                                             branch.space_constant,
-                                             branch.membrane_resistance,
-                                             branch.attenuation_factor,
-                                             branch.time_scaling_factor)
+        # Step 2: Simulate the way from dendrite branch to dendrite
+        dendrite.charge = cable_function(None,
+                                        injected_charge,
+                                        dendrite.charge,
+                                        branch.space_constant,
+                                        branch.membrane_resistance,
+                                        branch.attenuation_factor,
+                                        branch.time_scaling_factor)
 
     """
     —————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -261,6 +246,7 @@ class Soma:
                                                          den.attenuation_factor,
                                                          den.time_scaling_factor)
 
+
     """
     —————————————————————————————————————————————————————————————————————————————————————————————————————————————
     """
@@ -299,6 +285,9 @@ class Soma:
             self.refractory_period -= 1
             return None
 
+        else: # If not set fired_stat to False so other neurons know
+            self.fired_stat = False
+
         # Check if soma activation potential (threshold) is reached
 
         if self.current_charge >= self.threshold:
@@ -322,52 +311,39 @@ class Soma:
 
         if self.axon.axon_terminals is not None:
             for at in self.axon.axon_terminals:
-                # CABLE FUNCTION HERE!
+                # Creates new Neurotransmitter object with the cable theoried charge as it's value and then hands it off to the synapse.
+                at.synapse.current_signal = at.synthesize(
+                    cable_function(None,
+                                   self.axon.current_charge,
+                                   0,
+                                   at.space_constant,
+                                   at.membrane_resistance,
+                                   at.attenuation_factor,
+                                   at.time_scaling_factor))
 
-                if at.mitochondrion.consume(TransmittersCost(self.nucleus.dna.allowed_syntheses.value.capitalize())): #Takes the allowed transmitter from the dna, puts it inside the TransmittersCost enum and uses the capitalized string as key.
 
-                else:
-                    # ADD TO QUEUE
+                at.synapse.calculate_and_strip() # Handles entire synapse propogation
 
+        self.refractory_period = 5
+        self.fired_stat = True
 
-
-
-                    # OLD CODE
-
-        if not self.mitochondrion.consume():
-            self.is_exhausted = True
-            return None
-
-        if self.refractory_timer > 0:
-            self.refractory_timer -= 1
-            # Still do the maths, but don't fire
-            return None
-
-        else:
-            if self.mitochondrion.consume(TransmittersCost.STANDARD):
-                # DO Maths here
-                outgoing = Signal(2)  # PLACEHOLDER
-                return outgoing
-            else:
-                # Save the signal for later?
-                return None
 
         """
         ——————————————————————————————————————————————————————————————————————————————————————————————————————————————
         """
 
-    def assign_transmitter(self, signal: Signal) -> Tuple[Transmitters, TransmittersCost]:
-        # TODO: - Implement this
-        # TODO: Should use the Signal returned from the process method to assign a transmitter and return said transmitter
-        # TODO: RETURN TYPE IS CROOKED
-        # TODO: RUN CHECK UP ON MITOCHONDRION
 
-        self.mitochondrion.consume(TransmittersCost.STANDARD)
-        transmitter_tuple: Tuple
-        return transmitter_tuple[Transmitters, TransmittersCost]
+    def regenerate_mitochondria(self):
+        for d in self.dendrites:
+            d.mitochondrion.recharge()
+
+            for dt in d.branches:
+                dt.mitochondrion.recharge()
+
+        self.mitochondrion.recharge()
 
     def fire(self):
-        self.mitochondrion.consume(TransmittersCost.FIRE)
-        # TODO: -implement this
-        # TODO: Should command the firing of the transmitter
-        pass
+        self.process()
+        self.regenerate_mitochondria()
+
+        # STDP STUFF HAPPENS HERE

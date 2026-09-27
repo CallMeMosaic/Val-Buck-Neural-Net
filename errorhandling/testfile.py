@@ -17,14 +17,17 @@ GTime = Time()
 
 Dendrite = fundamentals.dendrite.Dendrite(Mitochondrion(),
                                           -52,
-                                          -70,
+                                          -60,
                                           [DendriteBranch(None, Mitochondrion(), Transmitters.GABA, NeuronDNA(Transmitters.GABA, Transmitters.GABA, 22, GTime), 5, 2, 1.3)],
                                           GTime,
-                                          5,
-                                          5,
-                                          22000
+                                          3,
+                                          7,
+                                          30000
 
                                           )
 
 print(round(Dendrite.leak_factor,10))
 print(Dendrite.tau_membrane)
+
+
+branch_A = DendriteBranch()
