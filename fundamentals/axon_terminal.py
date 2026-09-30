@@ -62,6 +62,7 @@ class AxonTerminal:
 
         self.synapse = synapse
 
+
         # Ensure the Mitochondrion is not none or not of type mitochondrion
 
         if not isinstance(mitochondrion, Mitochondrion) or mitochondrion is None:
@@ -69,12 +70,14 @@ class AxonTerminal:
 
         self.mitochondrion = mitochondrion
 
+
         # Ensure Synthesis Type is according to Type Hint
 
         if not isinstance(synthesis_type, Transmitters):
             raise TypeError("Synthesis Type must be value of Transmitters enum!")
 
         self.synthesis_type = synthesis_type
+
 
         # Ensure the length is greater than 0 and is according to type hint.
 
@@ -90,6 +93,7 @@ class AxonTerminal:
 
         self.length = length
 
+
         # Ensure Width is according to Type Hints
 
         if width is not None:
@@ -104,6 +108,7 @@ class AxonTerminal:
 
         self.width = width
 
+
         # Ensure Membrane Resistance is according to Type Hints
 
         if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
@@ -113,9 +118,11 @@ class AxonTerminal:
 
         self.membrane_resistance = membrane_resistance
 
+
         # Create Terminal Queue
 
         self.terminal_queue = float
+
 
         # Values for cable Theory DO THIS WITH DNA LATER
 

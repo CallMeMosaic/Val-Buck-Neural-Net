@@ -1,56 +1,68 @@
+from numbers import Number
+
 import math
 from math import sqrt
-from numbers import Number
-from typing import List, Callable
 
 from fundamentals.control.time import Time
 from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.maths.CONSTANTS import DELTA_T
-from fundamentals.maths.activation_functions import ReLu, ActivationFunction
 from fundamentals.mitochondrion import Mitochondrion
+from fundamentals.neuron_dna import NeuronDNA
 from fundamentals.transmitters import Transmitters
-
-
-#TODO: - Dendritic pre-processing
-#TODO: - Needs to be non linear (Activation Function)
-#TODO - Needs relay to Soma ASAP
-
 
 
 class Dendrite:
     """
-    Represents a dendrite, a part of a neuron that receives signals from other neurons and relays
-    them to its cell body. The class manages its length, associated mitochondrion, and functionality
-    to handle dendritic branches and accepted neurotransmitters.
+    Represents the Dendrite, the first processing layer of the neuron.
+    It gathers all charge/input from its connecting dendritic branches and applies
+    spatial and temporal decay functions to it before checking if it can fire.
+    Hereby the dendrite can act as a first layer of computation before the soma.
+    If the charge threshold is met, a dendrite can fire and relay its charge to the soma.
+    A Dendrite also provides all necessary properties for spatial and temporal decay as well as
+    methods to create and remove dendritic branches.
 
-    Dendrites are critical parts of neural signaling, and this class provides methods to
-    dynamically create, append, and remove dendritic branches, while ensuring valid initialization
-    and attribute settings.
 
-    :ivar length: The length of the dendrite in the neural structure.
-    :type length: Float
-    :ivar mitochondrion: Is The mitochondrion associated with the dendritic structure.
-    :type mitochondrion: Mitochondrion
-    :ivar accepted_transmitters: A list of transmitters accepted by the dendrite.
-    :type accepted_transmitters: List[Transmitters]
-    :ivar branches: A collection of dendritic branches created dynamically.
-    :type branches: List[DendriteBranch]
+    :param mitochondrion: Mitochondrion: The mitochondrion supplying energy for the dendrite's operations.
+    :param local_threshold: float: The minimum local charge threshold needed to fire.
+    :param baseline_charge: float: The baseline charge of the dendrite. After each fire, the charge resets to this value.
+    :param branches: List[DendriteBranch]: The list of dendrite branches connected to the dendrite. Charges will be accumulated from them.
+    :param global_time: Time: The global time object is used for time-based calculations. POSSIBLY OBSOLETE?
+    :param width: int: The width of the dendrite, used for cable theory calculations.
+    :param length: int: The length of the dendrite, used for cable theory calculations.
+    :param membrane_resistance: float: The resistance of the dendrite's membrane. Necessary for cable theory calculations.
+
+
+    Late-Initialized Properties:
+    :property internal_resistance: Float: Internal resistance of the axon to charge dissipating.
+    :property space_constant: Float: The square root of the membrane resistance divided by the axon's internal resistance. Indicates how much percentage of charge dissipates over one length unit.
+    :property cable_area: Float: The surface area of the axon. It is calculated as the product of the axon's width and length.
+    :property membrane_capacitance: Float: How much the membrane stores/absorbs charge over the length of the axon.
+    :property tau_membrane: Float: The time constant of the membrane, calculated as the product of the membrane resistance and membrane capacitance.
+    :property attenuation_factor: Float:
+    :property time_scaling_factor: Float:
+
 
     :author: CallMeMosaic
     :since: 0.0.1
     :version: 0.0.4
-    """
 
-    # TODO: DOCSTRING EDIT
+
+    Changelog:
+    - 0.0.3: Added spatial and temporal decay properties and did some formatting.
+
+    - 0.0.4: Final formatting.
+    """
 
     def __init__(
             self,
             mitochondrion: Mitochondrion,
-            local_threshold: float = -44, # mV Minimum local charge necessary for a local spike -> Soma | Should be around -52 to -41 mV
-            baseline_charge: float = -70, # Determines the base charge, so current charge can also be reset to this | Should be around -75 to -60 mV
-            branches= None, # All the branches of the dendrite
-            #activation_function: ActivationFunction = ReLu,# Activation Function passed so each dendrite can have its own
-            global_time = Time,
+            local_threshold: float = -44,
+            # mV Minimum local charge necessary for a local spike -> Soma | Should be around -52 to -41 mV
+            baseline_charge: float = -70,
+            # Determines the base charge, so the current charge can also be reset to this | Should be around -75 to -60 mV
+            branches=None,  # All the branches of the dendrite
+            # activation_function: ActivationFunction = ReLu, # Activation Function passed so each dendrite can have its own
+            global_time=Time,
             width: int = 1,
             length: int = 1,
             membrane_resistance: float = 1.0,
@@ -100,7 +112,7 @@ class Dendrite:
 
         # Ensure the Mitochondrion is not none or not of type mitochondrion
 
-        if not isinstance(mitochondrion,Mitochondrion) or mitochondrion is None:
+        if not isinstance(mitochondrion, Mitochondrion) or mitochondrion is None:
             raise TypeError("Mitochondrion must be instance of type Mitochondrion!")
 
         self.mitochondrion = mitochondrion
@@ -136,14 +148,7 @@ class Dendrite:
         self.global_time: Time = global_time
 
 
-        # Ensure activation function is callable
-
-        #if not isinstance(activation_function, ActivationFunction):
-            #raise TypeError("Activation function must be of type ActivationFunction!")
-
-        #self.activation_function: Callable
-        #self.activation_function = activation_function.calculate
-
+        # Ensure membrane_resistance passes the type hints and is reasonable
 
         if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
             raise TypeError("Membrane resistance must be a number")
@@ -161,7 +166,6 @@ class Dendrite:
 
         # Values for cable theory DO THIS WITH DNA LATER
 
-
         self.internal_resistance = 10 / width
 
         self.space_constant = sqrt(membrane_resistance / self.internal_resistance)
@@ -178,33 +182,52 @@ class Dendrite:
 
         self.time_scaling_factor = (DELTA_T / self.tau_membrane)
 
+    """
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+    """
 
-
-    def create_and_add_branch(self, length: float, receptor_type: Transmitters, target_axon_terminal: AxonTerminal):
+    def create_and_add_branch(self,
+                              receptor_type: Transmitters,
+                              branch_dna: NeuronDNA,
+                              length: int = 1,
+                              width: int = 1,
+                              membrane_resistance: int = 20000):
         """
-        Creates a new dendritic branch and adds it to the list of branches. The new branch is initialised
+        Creates a new dendritic branch and adds it to the list of branches. The new branch is initialized
         with a specific length, transmitter receptor type, and a target axon terminal. Important note, the branch is created and appended inside this method.
         There is no method to only create a branch and not append it to the list, as branches should not be created without being appended or having a connection.
 
 
-        :param self: The instance of the class where the method is being called.
-        :param length: The length of the new dendritic branch.
-        :type length: Float
-        :param receptor_type: The neurotransmitter receptor type associated with the new branch.
-        :type receptor_type: Transmitters
-        :param target_axon_terminal: The target axon terminal to which the new branch is connected.
-        :type target_axon_terminal: AxonTerminal
+
+        :param receptor_type: Transmitters: The type of transmitter the branch will use.
+        :param branch_dna: NeuronDNA: The DNA of the branch.
+        :param length: int: The length of the branch, used for cable theory calculations.
+        :param width: int: The width of the branch, used for cable theory calculations.
+        :param membrane_resistance: int: The resistance of the branch's membrane.
+
+
         :return: None
         """
 
-        self.branches.append(DendriteBranch(length, receptor_type, target_axon_terminal))
+        self.branches.append(DendriteBranch(None,
+                                            Mitochondrion(),
+                                            receptor_type,
+                                            branch_dna,
+                                            length,
+                                            width,
+                                            membrane_resistance))
+
+    """
+    ————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+    """
 
     def remove_and_delete_branch(self, branch: DendriteBranch):
         """
         Removes a specified branch from the collection of branches and deletes it.
 
-        :param branch: The branch object to be removed and deleted.
-        :type branch: DendriteBranch
+
+        :param branch: DendriteBranch: The branch object to be removed and deleted.
         :return: None
         """
+
         self.branches.remove(branch)

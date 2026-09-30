@@ -10,7 +10,6 @@ from fundamentals.maths.decay_function import cable_function
 from fundamentals.maths.lif_model import lif_model
 from fundamentals.mitochondrion import Mitochondrion
 from fundamentals.nucleus import Nucleus
-from fundamentals.transmitters import Transmitters
 from fundamentals.transmitters_cost import TransmittersCost
 
 

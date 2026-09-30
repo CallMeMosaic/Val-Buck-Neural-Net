@@ -1,17 +1,10 @@
+from numbers import Number
+
 import math
 from math import sqrt
-from numbers import Number
-from typing import List
 
-from fundamentals.Signal import Signal
 from fundamentals.axon_terminal import AxonTerminal
-from fundamentals.dendrite_branch import DendriteBranch
 from fundamentals.maths.CONSTANTS import DELTA_T
-from fundamentals.mitochondrion import Mitochondrion
-from fundamentals.neuro_transmitter import NeuroTransmitter
-from fundamentals.nucleus import Nucleus
-from fundamentals.transmitters import Transmitters
-from fundamentals.transmitters_cost import TransmittersCost
 
 
 class Axon:
@@ -19,11 +12,13 @@ class Axon:
     Represents the axon of the neuron, responsible for transmitting the action potential of the soma to the exon terminals.
     Mostly needed for applying cable theory function inside the soma, to simulate the action potential propagation.
 
+
     :param current_charge: Float: Current charge of the axon. Is set to 0 by default.
     :param width: Int: Width of the axon. The default value is 1.
     :param length: Int: Length of the axon. The default value is 1.
     :param membrane_resistance: Float: Membrane resistance of the axon. Is set to 1.0 by default as it does not affect the cable theory equations.
     :param axon_terminals: List[AxonTerminal]: List of axon terminals connected to the axon.
+
 
     Late-Initialized Properties:
     :property internal_resistance: Float: Internal resistance of the axon to charge dissipating.
@@ -44,8 +39,6 @@ class Axon:
     - 0.0.2: Fully reworked the axon class to include all necessary parameters for the maths and calculations.
              Also added proper documentation and proper type hints and type enforcement.
     """
-#TODO: YEAH WE SHOULD DO SOMETHING HERE RIGHT?
-
 
     def __init__(self,
                  current_charge: float = 0,
@@ -54,7 +47,6 @@ class Axon:
                  membrane_resistance: float = 1.0,
                  axon_terminals: list[AxonTerminal] = None,
                  ):
-
 
         # Ensure current charge is according to type hints
 
@@ -120,7 +112,7 @@ class Axon:
 
         self.cable_area = width * length * math.pi
 
-        self.membrane_capacitance = 1.0 * self.cable_area # Sure that taking it times one makes sense?
+        self.membrane_capacitance = 1.0 * self.cable_area  # Sure that taking it times one makes sense?
 
         self.tau_membrane = self.membrane_capacitance * self.internal_resistance
 
@@ -128,30 +120,7 @@ class Axon:
 
         self.time_scaling_factor = (DELTA_T / self.tau_membrane)
 
-
-
     """
     ————————————————————————————————————————————————————————————————————————————————————————————————————————————————
     """
 
-
-    def create_and_add_terminal(self, affector_type: Transmitters, linked_dendrite_branch: DendriteBranch,
-                                length: float):
-        """
-        Creates and adds an axon terminal to the current list of axon terminals within the neuron.
-
-        This method instantiates a new `AxonTerminal` object with the provided parameters and appends it
-        to the axon terminal list, associating it with the neuron instance.
-
-        :param affector_type: The type of neurotransmitter used by the axon terminal.
-        :type affector_type: Transmitters
-        :param linked_dendrite_branch: The dendrite branch that this axon terminal will link to for signal transmission.
-        :type linked_dendrite_branch: DendriteBranch
-        :param length: The length of the axon terminal, determining its physical extension.
-        :type length: float
-        :return: None
-        """
-        self.axon_terminals.append(AxonTerminal(self, affector_type, linked_dendrite_branch, length))
-
-    def remove_terminal(self, terminal: AxonTerminal):
-        self.axon_terminals.remove(terminal)

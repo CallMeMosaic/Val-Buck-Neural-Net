@@ -1,8 +1,8 @@
-import math
-
-from math import sqrt
 from numbers import Number
 from typing import Optional
+
+import math
+from math import sqrt
 
 from errorhandling.neuron_exceptions import NeuronDNAError
 from fundamentals.Signal import Signal
@@ -14,50 +14,60 @@ from fundamentals.transmitters import Transmitters
 
 class DendriteBranch:
     """
-    Represents a dendrite branch in a neural network model.
+    Dendrite Branch class. Provides Properties necessary for spatial decay calculation
+    and Neuro Transmitter propagation. Gets handed a signal Object by its preceding
+    Synapse.
 
-    This class provides the structure and functionality to model a dendritic branch
-    that connects to an axon terminal, facilitating neural communication. The dendrite
-    branch is characterized by its length, the type of neurotransmitter receptor it contains,
-    and the axon terminal it is connected to. Its primary function is to receive signals
-    transmitted by the connected axon terminal.
+    :param current_signal: Signal:
+    :param mitochondrion: Mitochondrion:
+    :param receptor_type: Transmitters:
+    :param branch_dna: NeuronDNA:
+    :param length: Int:
+    :param width: Int:
+    :param membrane_resistance: Float:
 
-    :ivar parent_axon_terminal: The axon terminal connected to the dendrite branch.
-    :type parent_axon_terminal: AxonTerminal
-    :ivar length: The length of the dendrite branch. It must be greater than 0.
-    :type length: float
-    :ivar receptor_type: The type of neurotransmitter receptor contained in the
-        dendrite branch. Must match the transmitter type of the connected axon terminal.
-    :type receptor_type: Transmitters
+    Late-Initialized Properties:
+    :property internal_resistance: Float: Internal resistance of the axon to charge dissipating.
+    :property space_constant: Float: The square root of the membrane resistance divided by the axon's internal resistance. Indicates how much percentage of charge dissipates over one length unit.
+    :property cable_area: Float: The surface area of the axon. It is calculated as the product of the axon's width and length.
+    :property membrane_capacitance: Float: How much the membrane stores/absorbs charge over the length of the axon.
+    :property tau_membrane: Float: The time constant of the membrane, calculated as the product of the membrane resistance and membrane capacitance.
+    :property attenuation_factor: Float:
+    :property time_scaling_factor: Float:
 
     :author: CallMeMosaic
     :since: 0.0.1
-    :version: 0.0.2
+    :version: 0.0.3
 
     Changelog:
         - 0.0.2: Added proper type hints and removed unnecessary stuff
-                 Also added parameter for dna of soma, so no branch can be build that would accept invalid signals (neuron cancer? I mean biologically it is possible probalby???)
+                 Also added parameter for dna of soma, so no branch can be built that would accept invalid signals (neuron cancer? I mean biologically it is possible probably???)
                  Added width parameter for spatial decay calculation.
                  Added Mitochondrion parameter for energy consumption.
+
+        - 0.0.3: Changed Documentation and optimized readability.
     """
 
-    # TODO: ADD LINKED SYNAPSE!!!
+    # TODO: ADD LINKED SYNAPSE!!! No
     def __init__(
             self,
             current_signal: Signal | None,
-            mitochondrion: Mitochondrion, # The Powerhouse of each cell innit
+            mitochondrion: Mitochondrion,  # The Powerhouse of each cell innit
             receptor_type: Transmitters,  # From transmitters enum
-            branch_dna: NeuronDNA, # Ensures that the Branches cannot receive signals from neurons that use different Neuro Transmitters
-            length: int = 1, # default value is 1.0, needed for spatial decay calculation
-            width: int = 1, # default value is 1.0, needed for spatial decay calculation
+            branch_dna: NeuronDNA,
+            # Ensures that the Branches cannot receive signals from neurons that use different Neuro Transmitters
+            length: int = 1,  # default value is 1.0, needed for spatial decay calculation
+            width: int = 1,  # default value is 1.0, needed for spatial decay calculation
             membrane_resistance: float = 1.0,
-            name: Optional[str] = None, # Optional name for easier debugging
+            name: Optional[str] = None,  # Optional name for easier debugging
     ):
-        # Ensure current Signal follows type hints, Can be None as it is set to none when signal is processed
+        # Ensure the current Signal follows type hints, Can be None as it is set to none when signal is processed
+
         if current_signal is not None and not isinstance(current_signal, Signal):
             raise TypeError("current_signal must instance of class Signal")
 
         self.current_signal = current_signal
+
 
 
         # Ensure the DNA passes type hints
@@ -68,10 +78,12 @@ class DendriteBranch:
 
 
         # Ensure Mitochondrion passes type hints
+
         if not isinstance(mitochondrion, Mitochondrion) or mitochondrion is None:
             raise TypeError("mitochondrion must instance of class Mitochondrion")
 
         self.mitochondrion = mitochondrion
+
 
 
         # Ensure the current receptor type matches the DNA
@@ -85,6 +97,7 @@ class DendriteBranch:
 
 
         # Ensure length passes a type hint and is reasonable
+
         if not isinstance(length, Number) or isinstance(length, bool):
             raise TypeError("Length must be a number")
         else:
@@ -96,7 +109,8 @@ class DendriteBranch:
         self.length = length
 
 
-        # Ensure width passes type hint and is reasonable
+        # Ensure width passes the type hint and is reasonable
+
         if not isinstance(width, Number) or isinstance(width, bool):
             raise TypeError("Width must be a number")
         else:
@@ -107,12 +121,16 @@ class DendriteBranch:
 
         self.width = width
 
+
+        # Ensure membrane_resistance passes type hints
+
         if not isinstance(membrane_resistance, Number) or isinstance(membrane_resistance, bool):
             raise TypeError("Membrane resistance must be a number")
         else:
             membrane_resistance = float(membrane_resistance)
 
         self.membrane_resistance = membrane_resistance
+
 
         # Values for cable theory DO THIS WITH DNA LATER
 
@@ -129,9 +147,3 @@ class DendriteBranch:
         self.attenuation_factor = math.exp(-length / self.space_constant)
 
         self.time_scaling_factor = (DELTA_T / self.tau_membrane)
-
-
-        #TODO:
-
-
-
