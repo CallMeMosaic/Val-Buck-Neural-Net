@@ -16,7 +16,7 @@ class AxonTerminal:
     Represents the terminal structure of an axon in a neural network model.
 
     This class defines an axon terminal, which is responsible for transmitting neurotransmitters
-    of a specific type to a linked it's dedicated synapse. It includes all necessary properties to calculate
+    of a specific type to its designated synaptic junction. It includes all necessary properties to calculate
     spatial decay via the cable theory function and hands its synthesized Neuro Transmitter to its linked Synapse.
 
     :param synapse: Synapse: The synapse to which this axon terminal is linked.
