@@ -22,7 +22,7 @@ Dendrite = fundamentals.dendrite.Dendrite(Mitochondrion(),
                                           GTime,
                                           3,
                                           7,
-                                          30000
+                                          20000
 
                                           )
 

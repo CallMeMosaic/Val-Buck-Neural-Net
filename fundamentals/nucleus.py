@@ -1,10 +1,6 @@
-from typing import Callable, List, Union
-from fundamentals.mitochondrion import Mitochondrion
-from fundamentals.neuro_transmitter import NeuroTransmitter
 from fundamentals.neuron_dna import NeuronDNA
-from fundamentals.transmitters import Transmitters
 
-#TODO: - Add Activation Function in here
+#TODO: - Add Activation Function in here. No
 
 
 class Nucleus:

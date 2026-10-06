@@ -16,7 +16,7 @@ class DendriteBranch:
     """
     Dendrite Branch class. Provides Properties necessary for spatial decay calculation
     and Neuro Transmitter propagation. Gets handed a signal Object by its preceding
-    Synapse.
+    Synapse. Strips the carried charge of it's Signal object and removes references to the Signal object for GC to collect it.
 
     :param current_signal: Signal:
     :param mitochondrion: Mitochondrion:
