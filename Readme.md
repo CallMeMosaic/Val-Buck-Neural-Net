@@ -1,4 +1,6 @@
-﻿# Spark-V2 (Val-Buck-Neural-Net)
+﻿![Header Image](assets/preview.webp)
+
+# Spark-V2 (Val-Buck-Neural-Net)
 
 Spark-V2 is a biologically-inspired neural network framework that models the complex interactions of biological neurons. Unlike traditional artificial neural networks that use simplified mathematical abstractions, Spark-V2 incorporates concepts such as neurotransmitters, mitochondrial energy management, and DNA-constrained cellular functions.
 
